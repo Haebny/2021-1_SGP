@@ -78,6 +78,13 @@ public class BlockControl : MonoBehaviour
 
     public Material opague_material;        // 불투명 머티리얼
     public Material transparent_material;   // 반투명 머티리얼
+
+    private struct StepFall
+    {
+        public float velocity;      // 낙하 속도
+    }
+
+    private StepFall fall;
     
     // Start is called before the first frame update
     void Start()
@@ -137,6 +144,16 @@ public class BlockControl : MonoBehaviour
                         }
                     }
                     break;
+                case Block.STEP.IDLE:
+                    this.GetComponent<Renderer>().enabled = true;
+                    break;
+                case Block.STEP.FALL:
+                    if(this.position_offset.y <= 0.0f)
+                    {
+                        this.next_step = Block.STEP.IDLE;
+                        this.position_offset.y = 0.0f;
+                    }
+                    break;
             }
         }
 
@@ -166,6 +183,16 @@ public class BlockControl : MonoBehaviour
                     this.position_offset = Vector3.zero;
                     this.SetVisible(false);     // 블록을 표시하지 않음
                     break;
+                case Block.STEP.RESPAWN:
+                    //색을 랜덤선택하여 블록의 색으로 설정
+                    int color_index = Random.Range(0, (int)Block.COLOR.NORMAL_COLOR_NUM);
+                    this.SetColor((Block.COLOR)color_index);
+                    this.next_step = Block.STEP.IDLE;
+                    break;
+                case Block.STEP.FALL:
+                    this.SetVisible(true);      // 블록 표시
+                    this.fall.velocity = 0.0f;  // 낙하 속도 리셋
+                    break;
             }
             this.step_timer = 0.0f;
         }
@@ -183,6 +210,17 @@ public class BlockControl : MonoBehaviour
                 rate = Mathf.Sin(rate * Mathf.PI / 2.0f);
                 this.position_offset = Vector3.Lerp(this.position_offset_initial, Vector3.zero, rate);
                 break;
+            case Block.STEP.FALL:
+                // 속도에 중력 부여
+                this.fall.velocity += Physics.gravity.y * Time.deltaTime * 0.3f;
+                // 수직 방향 위치 계산
+                this.position_offset.y += this.fall.velocity * Time.deltaTime;
+                // 다 내려왔다면
+                if (this.position_offset.y < 0.0f)
+                {
+                    this.position_offset.y = 0.0f;  // 그 자리에 정지
+                }
+                break;
         }
 
         // 그리드 좌표를 실제 좌표(씬 좌표)로 변하고 position_offset 추가
@@ -193,10 +231,12 @@ public class BlockControl : MonoBehaviour
         this.SetColor(this.color);
         if(this.vanish_timer >= 0.0f)
         {
-            //현재 색과 흰색의 중간 색
-            Color color0 = Color.Lerp(this.GetComponent<Renderer>().material.color, Color.white, 0.5f);
+            // 현재 레벨의 연소시간으로 설정
+            float vanish_time = this.block_root.level_control.GetVanishTime();
 
-            //현재 색과 검은색의 중간 색
+            // 현재 색과 흰색의 중간 색
+            Color color0 = Color.Lerp(this.GetComponent<Renderer>().material.color, Color.white, 0.5f);
+            // 현재 색과 검은색의 중간 색
             Color color1 = Color.Lerp(this.GetComponent<Renderer>().material.color, Color.black, 0.5f);
 
             // 불붙는 연출 시간이 절반을 지나면
@@ -381,7 +421,10 @@ public class BlockControl : MonoBehaviour
     // '사라지는데 걸리는 시간'을 규정값으로 리셋
     public void ToVanishing()
     {
-        this.vanish_timer = Block.VANISH_TIME;
+        //this.vanish_timer = Block.VANISH_TIME;
+        // 현재 레벨의 연소시간으로 설정
+        float vanish_time = this.block_root.level_control.GetVanishTime();
+        this.vanish_timer = vanish_time;
     }
 
     // vanish_timer가 0보다 크면 true
@@ -392,9 +435,13 @@ public class BlockControl : MonoBehaviour
     }
 
     // '사라지는데 걸리는 시간'을 규정값으로 리셋
-    public void rewindVanishTimer()
+    public void RewindVanishTimer()
     {
-        this.vanish_timer = Block.VANISH_TIME;
+        //this.vanish_timer = Block.VANISH_TIME;
+
+        // 현재 레벨의 연소시간으로 설정
+        float vanish_time = this.block_root.level_control.GetVanishTime();
+        this.vanish_timer = vanish_time;
     }
 
     // 그리기 가능(renderer.enabled==true)이면 표시
@@ -422,5 +469,46 @@ public class BlockControl : MonoBehaviour
         }
 
         return isIdle;
+    }
+
+    // 낙하 시작 처리 함수
+    public void BeginFall(BlockControl start)
+    {
+        this.next_step = Block.STEP.FALL;
+        // 지정된 브록에서 좌표 계산
+        this.position_offset.y = (float)(start.pos.y - this.pos.y) * Block.COLLISION_SIZE;
+    }
+
+    // 색을 바꿔 낙하상태 표현 및 지정 위치 재배치 함수
+    public void BeginRespawn(int start_pos_y)
+    {
+        // 지정 위치까지 y좌표 이동
+        this.position_offset.y = (float)(start_pos_y - this.pos.y) * Block.COLLISION_SIZE;
+        this.next_step = Block.STEP.FALL;
+        //int color_index = Random.Range((int)Block.COLOR.FIRST, (int)Block.COLOR.LAST + 1);
+        //this.SetColor((Block.COLOR)color_index);
+
+        // 현재 레벨의 출현 확률을 바탕으로 블록 색 결정
+        Block.COLOR color = this.block_root.SelectBlockColor();
+        this.SetColor(color);
+    }
+
+    // 블록이 비표시로 되어있는지 확인하는 함수
+    public bool IsVacant()
+    {
+        bool is_vacant = false;
+        if (this.step == Block.STEP.VACANT && this.next_step == Block.STEP.NONE)
+        {
+            is_vacant = true;
+        }
+
+        return is_vacant;
+    }
+
+    // 교체중(슬라이드 중)인지 확인하는 함수
+    public bool IsSliding()
+    {
+        bool is_sliding = (this.position_offset.x != 0.0f);
+        return is_sliding;
     }
 }
