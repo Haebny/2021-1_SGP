@@ -9,19 +9,22 @@ public class Block
     public enum TYPE
     {
         NONE = -1, // 없음.
-        FLOOR = 0, // 마루.
-        HOLE, // 구멍.
-        NUM, // 블록이 몇 종류인지 나타낸다(＝2).
+        FLOOR = 0, // 평면
+        OBSTACLE_F,  // 평지 장애물
+        SLOPE1, // 급경사면
+        SLOPE2, // 완경사면
+        OBSTACLE_S, // 경사면 장애물
+        NUM, // 블록이 몇 종류인지(＝5).
     };
 };
 
 public class MapCreator : MonoBehaviour
 {
     public static float BLOCK_WIDTH = 1.0f; // 블록의 폭.
-    public static float BLOCK_HEIGHT = 0.2f; // 블록의 높이.
-    public static int BLOCK_NUM_IN_SCREEN = 24; // 화면 내에 들어가는 블록의 개수.
+    public static float BLOCK_HEIGHT = -6f; // 블록의 높이.
+    public static int BLOCK_NUM_IN_SCREEN = 36; // 화면 내에 들어가는 블록의 개수.
     private LevelControl level_control = null;
-    public TextAsset level_data_text = null;
+    //public TextAsset level_data_text = null;
     private GameRoot game_root = null;
 
     private struct FloorBlock
@@ -41,10 +44,10 @@ public class MapCreator : MonoBehaviour
         this.last_block.is_created = false;
         this.block_creator = this.gameObject.GetComponent<BlockCreator>();
 
-        this.level_control = new LevelControl();
+        this.level_control = this.gameObject.AddComponent<LevelControl>();
         this.level_control.Initialize();
 
-        this.level_control.LoadLevelData(this.level_data_text);
+        //this.level_control.LoadLevelData(this.level_data_text);
 
         this.game_root = this.gameObject.GetComponent<GameRoot>();
 
@@ -54,14 +57,14 @@ public class MapCreator : MonoBehaviour
     private void CreateFloorBlock()
     {
         Vector3 block_position; // 이제부터 만들 블록의 위치.
+        // 블록이 생성되지 않았을 경우 설정
         if(!this.last_block.is_created)
         {
-            // last_block이 생성되지 않은 경우 블록의 위치를 일단 Player와 같게 한다.
+            // 블록의 위치를 일단 Player와 같게 한다.
             block_position = this.player.transform.position;
-            // 그러고 나서 블록의 X 위치를 화면 절반만큼 왼쪽으로 이동.
+            // 블록의 X 위치를 화면 절반만큼 왼쪽으로 이동.
             block_position.x -= BLOCK_WIDTH * ((float)BLOCK_NUM_IN_SCREEN / 2.0f);
-            // 블록의 Y위치는 0으로.
-            block_position.y = 0.0f;
+            block_position.y = 1f; // 블록의 Y위치는 1로.
         }
         else
         {
@@ -70,10 +73,8 @@ public class MapCreator : MonoBehaviour
         }
         block_position.x += BLOCK_WIDTH; // 블록을 1블럭만큼 오른쪽으로 이동.
 
-        // BlockCreator 스크립트의 CreateBlock()메소드에 생성을 지시!
-        //this.block_creator.CreateBlock(block_position); // 이제까지의 코드에서 설정한 block_position을 건네준다.
-        //this.level_control.update(); // LevelControl을 갱신.
-        this.level_control.update(this.game_root.GetPlayTime());
+        this.level_control.update(); // LevelControl을 갱신.
+        //this.level_control.update(this.game_root.GetPlayTime());  // 플레이 타임에 따라 다르게 생성
 
         // level_control에 저장된 current_block(지금 만들 블록 정보)의 height(높이)를 씬 상의 좌표로 변환.
         block_position.y = level_control.current_block.height * BLOCK_HEIGHT;
@@ -81,12 +82,13 @@ public class MapCreator : MonoBehaviour
         // 지금 만들 블록에 관한 정보를 변수 current에 넣는다.
         LevelControl.CreationInfo current = this.level_control.current_block;
 
-        // 지금 만들 블록이 바닥이면 (지금 만들 블록이 구멍이라면)
-        if (current.block_type == Block.TYPE.FLOOR)
+        // 지금 만들 블록이 바닥이면 (지금 만들 블록이 장애물이라면)
+        if (current.block_type == Block.TYPE.FLOOR || current.block_type == Block.TYPE.OBSTACLE_F)
         {
             // block_position의 위치에 블록을 실제로 생성.
-            this.block_creator.CreateBlock(block_position);
+            this.block_creator.CreateBlock(block_position, current.block_type);
         }
+
         this.last_block.position = block_position; // last_block의 위치를 이번 위치로 갱신.
         this.last_block.is_created = true; // 블록이 생성되었으므로 last_block의 is_created를 true로 설정.
     }
@@ -111,7 +113,8 @@ public class MapCreator : MonoBehaviour
     public bool IsDelete(GameObject block_object)
     {
         bool ret = false; // 반환값.
-                          // Player로부터 반 화면만큼 왼쪽에 위치, 이 위치가 사라지느냐 마느냐를 결정하는 문턱 값이 됨.
+                          
+        // Player로부터 반 화면만큼 왼쪽에 위치, 이 위치가 사라지느냐 마느냐를 결정하는 문턱 값이 됨.
         float left_limit = this.player.transform.position.x - BLOCK_WIDTH * ((float)BLOCK_NUM_IN_SCREEN / 2.0f);
         // 블록의 위치가 문턱 값보다 작으면(왼쪽),
         if (block_object.transform.position.x < left_limit)

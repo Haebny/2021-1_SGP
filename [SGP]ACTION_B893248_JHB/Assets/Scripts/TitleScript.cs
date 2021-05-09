@@ -9,7 +9,7 @@ public class TitleScript : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0) || Input.anyKey)
         {
-            SceneManager.LoadScene("GameScene");
+            SceneManager.LoadScene("MainScene");
         }
     }
 }

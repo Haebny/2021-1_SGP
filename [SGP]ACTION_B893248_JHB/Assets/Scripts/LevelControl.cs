@@ -16,8 +16,9 @@ public class LevelData
     public float player_speed; // 플레이어의 속도.
 
     public Range floor_count; // 발판 블록 수의 범위.
-    public Range hole_count; // 구멍의 개수 범위.
     public Range height_diff; // 발판의 높이 범위.
+    public int apear_Fobs; // 장애물 확률
+    //public int continuity;  // 블록의 연속개수
 
     public LevelData()
     {
@@ -25,8 +26,7 @@ public class LevelData
         this.player_speed = 6.0f; // 플레이어의 속도 초기화.
         this.floor_count.min = 10; // 발판 블록 수의 최솟값을 초기화.
         this.floor_count.max = 10; // 발판 블록 수의 최댓값을 초기화.
-        this.hole_count.min = 2; // 구멍 개수의 최솟값을 초기화.
-        this.hole_count.max = 6; // 구멍 개수의 최댓값을 초기화.
+        this.apear_Fobs = 3; // 장애물 등장 확률은 33%
         this.height_diff.min = 0; // 발판 높이 변화의 최솟값을 초기화.
         this.height_diff.max = 0; // 발판 높이 변화의 최댓값을 초기화.
     }
@@ -49,9 +49,9 @@ public class LevelControl : MonoBehaviour
     public int block_count = 0; // 생성한 블록의 총 수.
     public int level = 0;
 
-    private List<LevelData> level_datas = new List<LevelData>();
-    public int HEIGHT_MAX = 20;
-    public int HEIGHT_MIN = -4;
+    //private List<LevelData> level_datas = new List<LevelData>();
+    public int HEIGHT_MAX = 1;
+    public int HEIGHT_MIN = 1;
 
     //프로필 노트에 실제로 기록하는 처리를 한다.
     private void ClearNextBlock(ref CreationInfo block)
@@ -59,7 +59,7 @@ public class LevelControl : MonoBehaviour
         // 전달받은 블록(block)을 초기화.
         block.block_type = Block.TYPE.FLOOR;
         block.max_count = 15;
-        block.height = 0;
+        block.height = 1;
         block.current_count = 0;
     }
 
@@ -80,19 +80,48 @@ public class LevelControl : MonoBehaviour
     {
         switch (previous.block_type)
         {
-            case Block.TYPE.FLOOR: // 이번 블록이 바닥일 경우.
-                current.block_type = Block.TYPE.HOLE; // 다음 번은 구멍을 만든다.
-                current.max_count = 5; // 구멍은 5개 만든다.
-                current.height = previous.height; // 높이를 이전과 같게 한다.
+            case Block.TYPE.FLOOR: // 이번 블록이 일반 평지일 경우.
+                int rand = Random.Range(1, 101);
+
+                // 일정 확률로 장애물 오브젝트 등장
+                if (rand % 3 == 0)
+                {
+                    current.block_type = Block.TYPE.OBSTACLE_F; // 다음 번은 평지 장애물을 만든다.
+                    current.max_count = 1; // 평지 장애물은 1개 만든다.
+                }
+
+                // 일정 확률로 경사면 등장
+                else if (rand % 4 == 0)
+                {
+                    current.block_type = Block.TYPE.SLOPE1; // 다음 번은 급경사면을 만든다.
+                    current.max_count = 20; // 급경사면은 20개 만든다.
+                }
+
+                // 이외에는 일반 평지 등장
+                else
+                {
+                    current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
+                    current.max_count = 10; // 일반 평지는 20개 만든다.
+                                            //current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
                 break;
-            case Block.TYPE.HOLE: // 이번 블록이 구멍일 경우.
-                current.block_type = Block.TYPE.FLOOR; // 다음은 바닥 만든다.
-                current.max_count = 10; // 바닥은 10개 만든다.
+            case Block.TYPE.OBSTACLE_F: // 이번 블록이 평지 장애물일 경우
+                current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지을 만든다.
+                current.max_count = 20; // 급경사면은 20개 만든다.
+                break;
+            case Block.TYPE.SLOPE1: // 이번 블록이 급경사면일 경우.
+                current.block_type = Block.TYPE.SLOPE2; // 다음은 완경사면을 만든다.
+                current.max_count = 3; // 바닥은 3개 만든다.
+                break;
+            case Block.TYPE.SLOPE2:
+                current.block_type = Block.TYPE.FLOOR;
+                current.max_count = 10;
                 break;
         }
     }
 
-    public void update(float passage_time)
+    //public void update(float passage_time)
+    public void update()
     {
         // *Update()가 아님. CreateFloorBlock() 메서드에서 호출
         this.current_block.current_count++; // 이번에 만든 블록 개수를 증가.
@@ -103,150 +132,148 @@ public class LevelControl : MonoBehaviour
             this.previous_block = this.current_block;
             this.current_block = this.next_block;
             this.ClearNextBlock(ref this.next_block); // 다음에 만들 블록의 내용을 초기화.
-            this.UpdateLevel(ref this.next_block, this.current_block); // 다음에 만들 블록을 설정.
 
-            // this.UpdateLevel(ref this.next_block, this.current_block);
-            this.UpdateLevel(ref this.next_block, this.current_block, passage_time);
+            this.UpdateLevel(ref this.next_block, this.current_block); // 다음에 만들 블록을 설정.
+            //this.UpdateLevel(ref this.next_block, this.current_block, passage_time);
         }
         this.block_count++; // 블록의 총 수를 증가.
     }
 
-    public void LoadLevelData(TextAsset level_data_text)
-    {
-        string level_texts = level_data_text.text; // 텍스트 데이터를 문자열로 가져온다.
-        string[] lines = level_texts.Split('\n'); // 개행 코드 '\'마다 분할해서 문자열 배열에 넣는다.
-                                                  
-        // lines 내의 각 행에 대해서 차례로 처리해 가는 루프.
-        foreach (var line in lines)
-        {
-            if (line == "") // 행이 빈 줄이면.
-            {
-                continue; // 아래 처리는 하지 않고 반복문의 처음으로 점프한다.
-            };
+    //public void LoadLevelData(TextAsset level_data_text)
+    //{
+    //    string level_texts = level_data_text.text; // 텍스트 데이터를 문자열로 가져온다.
+    //    string[] lines = level_texts.Split('\n'); // 개행 코드 '\'마다 분할해서 문자열 배열에 넣는다.
 
-            //Debug.Log(line); // 행의 내용을 디버그 출력한다.
-            string[] words = line.Split(); // 행 내의 워드를 배열에 저장한다.
-            int n = 0;
+    //    // lines 내의 각 행에 대해서 차례로 처리해 가는 루프.
+    //    foreach (var line in lines)
+    //    {
+    //        if (line == "") // 행이 빈 줄이면.
+    //        {
+    //            continue; // 아래 처리는 하지 않고 반복문의 처음으로 점프한다.
+    //        };
 
-            // LevelData형 변수를 생성한다.
-            // 현재 처리하는 행의 데이터를 넣어 간다.
-            LevelData level_data = new LevelData();
+    //        //Debug.Log(line); // 행의 내용을 디버그 출력한다.
+    //        string[] words = line.Split(); // 행 내의 워드를 배열에 저장한다.
+    //        int n = 0;
 
-            // words내의 각 워드에 대해서 순서대로 처리해 가는 루프.
-            foreach (var word in words)
-            {
-                if (word.StartsWith("#"))
-                {
-                    // 워드의 시작문자가 #이면 루프 탈출.
-                    break;
-                } 
-                if (word == "")
-                {
-                    // 워드가 텅 비었으면.
-                    continue;
-                } 
+    //        // LevelData형 변수를 생성한다.
+    //        // 현재 처리하는 행의 데이터를 넣어 간다.
+    //        LevelData level_data = new LevelData();
 
-                // 루프의 시작으로 점프한다.
-                // n 값을 0, 1, 2,...7로 변화시켜 감으로써 8항목을 처리한다.
-                // 각 워드를 플롯값으로 변환하고 level_data에 저장한다.
-                switch (n)
-                {
-                    case 0: level_data.end_time = float.Parse(word); break;
-                    case 1: level_data.player_speed = float.Parse(word); break;
-                    case 2: level_data.floor_count.min = int.Parse(word); break;
-                    case 3: level_data.floor_count.max = int.Parse(word); break;
-                    case 4: level_data.hole_count.min = int.Parse(word); break;
-                    case 5: level_data.hole_count.max = int.Parse(word); break;
-                    case 6: level_data.height_diff.min = int.Parse(word); break;
-                    case 7: level_data.height_diff.max = int.Parse(word); break;
-                }
-                n++;
-            }
+    //        // words내의 각 워드에 대해서 순서대로 처리해 가는 루프.
+    //        foreach (var word in words)
+    //        {
+    //            if (word.StartsWith("#"))
+    //            {
+    //                // 워드의 시작문자가 #이면 루프 탈출.
+    //                break;
+    //            } 
+    //            if (word == "")
+    //            {
+    //                // 워드가 텅 비었으면.
+    //                continue;
+    //            } 
 
-            if (n >= 8)
-            {
-                // 8항목(이상)이 제대로 처리되었다면.
-                this.level_datas.Add(level_data); // List 구조의 level_datas에 level_data를 추가한다.
-            }
-            else
-            {
-                // 그렇지 않다면(오류의 가능성이 있다).
-                if (n == 0)
-                {
-                    // 1워드도 처리하지 않은 경우는 주석이므로.
-                    // 문제없다. 아무것도 하지 않는다.
-                }
-                else
-                { 
-                    // 그 이외이면 오류다.
-                    // 데이터 개수가 맞지 않다는 것을 보여주는 오류 메시지를 표시한다.
-                    Debug.LogError("[LevelData] Out of parameter.\n");
-                }
-            }
-        }
+    //            // 루프의 시작으로 점프한다.
+    //            // n 값을 0, 1, 2,...7로 변화시켜 감으로써 8항목을 처리한다.
+    //            // 각 워드를 플롯값으로 변환하고 level_data에 저장한다.
+    //            switch (n)
+    //            {
+    //                case 0: level_data.end_time = float.Parse(word); break;
+    //                case 1: level_data.player_speed = float.Parse(word); break;
+    //                case 2: level_data.floor_count.min = int.Parse(word); break;
+    //                case 3: level_data.floor_count.max = int.Parse(word); break;
+    //                case 4: level_data.obstacle = int.Parse(word); break;
+    //                case 5: level_data.height_diff.min = int.Parse(word); break;
+    //                case 6: level_data.height_diff.max = int.Parse(word); break;
+    //            }
+    //            n++;
+    //        }
 
-        if (this.level_datas.Count == 0)
-        { 
-            // level_datas에 데이터가 하나도 없으면.
-            Debug.LogError("[LevelData] Has no data.\n"); // 오류 메시지를 표시한다.
-            this.level_datas.Add(new LevelData()); // level_datas에 기본 LevelData를 하나 추가해 둔다.
-        }
-    }
+    //        if (n >= 8)
+    //        {
+    //            // 8항목(이상)이 제대로 처리되었다면.
+    //            this.level_datas.Add(level_data); // List 구조의 level_datas에 level_data를 추가한다.
+    //        }
+    //        else
+    //        {
+    //            // 그렇지 않다면(오류의 가능성이 있다).
+    //            if (n == 0)
+    //            {
+    //                // 1워드도 처리하지 않은 경우는 주석이므로.
+    //                // 문제없다. 아무것도 하지 않는다.
+    //            }
+    //            else
+    //            { 
+    //                // 그 이외이면 오류다.
+    //                // 데이터 개수가 맞지 않다는 것을 보여주는 오류 메시지를 표시한다.
+    //                Debug.LogError("[LevelData] Out of parameter.\n");
+    //            }
+    //        }
+    //    }
 
-    private void UpdateLevel(ref CreationInfo current, CreationInfo previous, float passage_time)
-    {
-        // 새 인수 passage_time으로 플레이 경과 시간을 받는다.
-        // 레벨 1~레벨 5를 반복한다.
-        float local_time = Mathf.Repeat(passage_time, this.level_datas[this.level_datas.Count - 1].end_time);
-        
-        // 현재 레벨을 구한다.
-        int i;
-        for (i = 0; i < this.level_datas.Count - 1; i++)
-        {
-            if (local_time <= this.level_datas[i].end_time)
-            {
-                break;
-            }
-        }
+    //    if (this.level_datas.Count == 0)
+    //    { 
+    //        // level_datas에 데이터가 하나도 없으면.
+    //        Debug.LogError("[LevelData] Has no data.\n"); // 오류 메시지를 표시한다.
+    //        this.level_datas.Add(new LevelData()); // level_datas에 기본 LevelData를 하나 추가해 둔다.
+    //    }
+    //}
 
-        this.level = i;
-        current.block_type = Block.TYPE.FLOOR;
-        current.max_count = 1;
-        if (this.block_count >= 10)
-        {
-            // 현재 레벨용 레벨 데이터를 가져온다.
-            LevelData level_data;
-            level_data = this.level_datas[this.level];
-            switch (previous.block_type)
-            {
-                case Block.TYPE.FLOOR: // 이전 블록이 바닥인 경우.
-                    current.block_type = Block.TYPE.HOLE; // 이번엔 구멍을 만든다.
-                    
-                    // 구멍 크기의 최솟값~최댓값 사이의 임의의 값.
-                    current.max_count = Random.Range(level_data.hole_count.min, level_data.hole_count.max);
-                    current.height = previous.height; // 높이를 이전과 같이 한다.
-                    break;
-                case Block.TYPE.HOLE: // 이전 블록이 구멍인 경우.
-                    current.block_type = Block.TYPE.FLOOR; // 이번엔 바닥을 만든다.
+    //private void UpdateLevel(ref CreationInfo current, CreationInfo previous, float passage_time)
+    //{
+    //    // 새 인수 passage_time으로 플레이 경과 시간을 받는다.
+    //    // 레벨 1~레벨 5를 반복한다.
+    //    float local_time = Mathf.Repeat(passage_time, this.level_datas[this.level_datas.Count - 1].end_time);
 
-                    // 바닥 길이의 최솟값~최댓값 사이의 임의의 값.
-                    current.max_count = Random.Range(level_data.floor_count.min, level_data.floor_count.max);
+    //    // 현재 레벨을 구한다.
+    //    int i;
+    //    for (i = 0; i < this.level_datas.Count - 1; i++)
+    //    {
+    //        if (local_time <= this.level_datas[i].end_time)
+    //        {
+    //            break;
+    //        }
+    //    }
 
-                    // 바닥 높이의 최솟값과 최댓값을 구한다.
-                    int height_min = previous.height + level_data.height_diff.min;
-                    int height_max = previous.height + level_data.height_diff.max;
-                    height_min = Mathf.Clamp(height_min, HEIGHT_MIN, HEIGHT_MAX); // 최소와 최대값 사이를 강제로 지정
-                    height_max = Mathf.Clamp(height_max, HEIGHT_MIN, HEIGHT_MAX);
+    //    this.level = i;
+    //    current.block_type = Block.TYPE.FLOOR;
+    //    current.max_count = 1;
+    //    if (this.block_count >= 10)
+    //    {
+    //        // 현재 레벨용 레벨 데이터를 가져온다.
+    //        LevelData level_data;
+    //        level_data = this.level_datas[this.level];
+    //        switch (previous.block_type)
+    //        {
+    //            case Block.TYPE.FLOOR: // 이전 블록이 바닥인 경우.
+    //                current.block_type = Block.TYPE.OBSTACLE_F; // 이번엔 장애물을 만든다.
 
-                    // 바닥 높이의 최솟값~최댓값 사이의 임의의 값.
-                    current.height = Random.Range(height_min, height_max);
-                    break;
-            }
-        }
-    }
+    //                // 장애물은 연속으로 생성되지 않음 = 1개만 생성
+    //                current.max_count = 1;
+    //                current.height = previous.height; // 높이를 이전과 같이 한다.
+    //                break;
+    //            case Block.TYPE.OBSTACLE_F: // 이전 블록이 장애물인 경우.
+    //                current.block_type = Block.TYPE.FLOOR; // 이번엔 바닥을 만든다.
 
-    public float GetPlayerSpeed()
-    {
-        return (this.level_datas[this.level].player_speed);
-    }
+    //                // 바닥 길이의 최솟값~최댓값 사이의 임의의 값.
+    //                current.max_count = Random.Range(level_data.floor_count.min, level_data.floor_count.max);
+
+    //                // 바닥 높이의 최솟값과 최댓값을 구한다.
+    //                int height_min = previous.height + level_data.height_diff.min;
+    //                int height_max = previous.height + level_data.height_diff.max;
+    //                height_min = Mathf.Clamp(height_min, HEIGHT_MIN, HEIGHT_MAX); // 최소와 최대값 사이를 강제로 지정
+    //                height_max = Mathf.Clamp(height_max, HEIGHT_MIN, HEIGHT_MAX);
+
+    //                // 바닥 높이 = 경사면이 생성된 만큼 낮음
+    //                current.height = Random.Range(height_min, height_max);
+    //                break;
+    //        }
+    //    }
+    //}
+
+    //public float GetPlayerSpeed()
+    //{
+    //    return (this.level_datas[this.level].player_speed);
+    //}
 }
