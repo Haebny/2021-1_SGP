@@ -37,14 +37,16 @@ public class PlayerControl : MonoBehaviour
 
     [SerializeField]private bool is_landed = false; // 착지했는가.
     public bool Is_landed    { get { return is_landed; } }
-    [SerializeField] private bool is_colided = false; // 뭔가와 충돌했는가.
-    public bool Is_colided { get { return is_colided; } }
-    [SerializeField]private bool is_fried = false; // 산불과 닿았는가.
+    [SerializeField] private bool is_grounded= false; // 착지했는가2.
+    public bool is_colided;
+    private bool is_fried = false; // 산불과 닿았는가.
     public bool Is_fried { get { return is_fried; } } 
     [SerializeField] private bool is_key_released = false; // 버튼이 떨어졌는가.
     public bool Is_key_released { get { return is_key_released; } } 
     [SerializeField]private bool is_dashing = false; // 돌진을 사용하는 중인가.
     private bool is_hopping = false; // 장애물을 밟았는가
+    [SerializeField] private bool is_perfect = false; // 공중제비를 모두 돌았는가
+    [SerializeField] private bool is_mid = false; // 공중제비를 모두 돌았는가
     private bool setState = true;
 
     public float current_speed = 0.0f; // 현재 속도.
@@ -63,6 +65,7 @@ public class PlayerControl : MonoBehaviour
     private float meter = 0;
     public float Meter { get { return meter; } }
     private Vector3 startPos;
+    private Vector3 velocity;
 
     void Start()
     {
@@ -72,17 +75,44 @@ public class PlayerControl : MonoBehaviour
 
     void Update()
     {
-        Vector3 velocity = this.GetComponent<Rigidbody>().velocity; // 속도를 설정.
+        velocity = this.GetComponent<Rigidbody>().velocity; // 속도를 설정.
         //this.current_speed = this.level_control.GetPlayerSpeed();
         this.current_speed = 5.0f;
         this.CheckLanded(); // 착지 상태인지 체크.
-        this.CheckMeters(); // 플레이어의 이동 거리를 계산한다.
+        this.CheckDistacne(); // 플레이어의 이동 거리를 계산한다.
+
+        // 산불과 충돌했다면
+        if (is_fried)
+        {
+            this.next_step = STEP.MISS; // '실패' 상태로 한다.
+            return;
+        }
+
+        // 텀블링
+        if(Input.GetMouseButton(0) && !is_colided)
+        {
+            if(is_grounded==false)
+            {
+                transform.Rotate(new Vector3(0, 0, Time.deltaTime*100f));
+            }
+        }
+        else if(is_grounded == false)
+        {
+            transform.Rotate(new Vector3(0, 0, -Time.deltaTime * 20f));
+        }
+
+        // 정상적으로 서있음
+        if (is_landed && !is_colided)
+        {
+            this.transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
 
         // 넘어짐
         if (is_colided && !setState)
         {
             // 넘어진 것을 보이기 위해 회전
-            transform.Rotate(90, 0, 0, Space.Self);
+            Debug.Log("FALL DOWN !!! ");
+            this.transform.rotation = Quaternion.Euler(0, 0, -90);
             setState = true;
         }
 
@@ -100,26 +130,22 @@ public class PlayerControl : MonoBehaviour
                 click_count = 0;
 
                 // 넘어진 오브젝트 일으키기
-                transform.Rotate(-90, 0, 0, Space.Self);
-                Debug.Log(transform.rotation);
+                transform.Rotate(0, 0, 0, Space.Self);
 
-                // 대시
+                // 일어나면 대시
                 UsingDash(DASH_TYPE.HOPPING);
             }
+
             return;
         }
 
+        // 텀블링 조작
 
 
         switch (this.step)
         {
             case STEP.RUN:
             case STEP.JUMP:
-                // 산불과 충돌했다면
-                if (is_fried)
-                {
-                    this.next_step = STEP.MISS; // '실패' 상태로 한다.
-                }
                 break;
         }
 
@@ -157,6 +183,15 @@ public class PlayerControl : MonoBehaviour
                             // 착지했다면.
                             this.click_timer = -1.0f; // 버튼이 눌려있지 않음을 나타내는 -1.0f로.
                             this.next_step = STEP.JUMP; // 점프 상태로 한다.
+
+                            // 공중제비를 성공하고 착지
+                            if (is_perfect)
+                            {
+                                Debug.Log("NICE TUMBLING !!! (+50)");
+                                score += 50; // 50점 획득
+                                is_perfect = false;
+                                is_mid = false;
+                            }
                         }
                     }
                     break;
@@ -317,18 +352,26 @@ public class PlayerControl : MonoBehaviour
         is_dashing = true;
 
         // 스킬 사용
-        this.GetComponent<Rigidbody>().AddForce(Vector3.right * 10.0f, ForceMode.Impulse);
+        this.GetComponent<Rigidbody>().AddForce(Vector3.right * 5f, ForceMode.Impulse);
         yield return new WaitForSeconds(sec);
 
-        Vector3 velocity = this.GetComponent<Rigidbody>().velocity; // 속도를 설정.
-        velocity.x *= this.current_speed / Mathf.Abs(velocity.x);
         is_dashing = false;
         is_hopping = false;
     }
 
-    private void OnCollisionEnter(Collision collision)
+    // 트리거 감지 처리
+    private void OnTriggerEnter(Collider other)
     {
-        if (collision.gameObject.CompareTag("Key"))
+        // 장애물을 스쳤으면 점수를 얻고 대시효과
+        if (other.CompareTag("Obstacle"))
+        {
+            Debug.Log("HOPPING !!! (+400)");
+            is_hopping = true;
+            score += (int)GameRoot.SCORE_TYPE.HOP;
+            UsingDash(DASH_TYPE.HOPPING);
+        }
+
+        if (other.CompareTag("Key"))
         {
             Debug.Log("GET KEY!!! (+50)");
             // 닭이 아니면 열쇠는 1개만 소지 가능
@@ -338,43 +381,54 @@ public class PlayerControl : MonoBehaviour
                 return;
             }
 
+            else if (key > 1)
+                return;
+
             // 열쇠 획득
             key++;
-            Destroy(collision.gameObject);
+            score += 50;
+            Destroy(other.gameObject);
         }
 
-        else if (collision.gameObject.CompareTag("Obstacle"))
-        {
-            if (is_hopping)
-                return;
-
-            // 대시 상태로 충돌 시 장애물은 파괴되고 점수를 획득
-            if(is_dashing)
-            {
-                Debug.Log("CRUSH !!! (+200)");
-                score += (int)GameRoot.SCORE_TYPE.DESTROY;  // 점수 획득
-                Destroy(collision.gameObject);
-                return;
-            }
-
-            // 넘어짐!!
-            Debug.Log("FALL DOWN !!! ");
-            is_colided = true;  // 충돌
-            setState = false;
-            Destroy(collision.gameObject);
-        }
-
-        else if (collision.gameObject.CompareTag("Box"))
+        if (other.gameObject.CompareTag("Box"))
         {
             // 열쇠가 없으면 상자를 열 수 없다!
-            if (key == 0)
+            if (key == 0 || skill > 2)
                 return;
 
             Debug.Log("BOX OPEN !!! (+100)");
             // 열쇠를 사용하여 상자 속 Dash를 얻음
             key--;
-            Destroy(collision.gameObject);  //상자가 열리는 애니메이션으로 대체 시 트리거로 옮길 것
+            score += 100;
+            Destroy(other.gameObject);  //상자가 열리는 애니메이션으로 대체 시 트리거로 옮길 것
             skill++;
+        }
+    }
+
+    // 충돌 처리
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Obstacle"))
+        {
+            if (is_hopping)
+                return;
+
+            Debug.Log("ROCK");
+
+            // 대시 상태로 충돌 시 장애물은 파괴되고 점수를 획득
+            if(is_dashing)
+            {
+                Destroy(collision.gameObject);
+                this.GetComponent<Rigidbody>().velocity = velocity;
+                Debug.Log("CRUSH !!! (+200)");
+                score += (int)GameRoot.SCORE_TYPE.DESTROY;  // 점수 획득
+                return;
+            }
+
+            // 넘어짐!!
+            is_colided = true;  // 충돌
+            setState = false;
+            Destroy(collision.gameObject);
         }
 
         if(collision.gameObject.CompareTag("Fire"))
@@ -389,19 +443,23 @@ public class PlayerControl : MonoBehaviour
             return;
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionStay(Collision collision)
     {
-        // 장애물을 스쳤으면 점수를 얻고 대시효과
-        if(other.CompareTag("Obstacle"))
+        if(collision.gameObject.CompareTag("Ground"))
         {
-            Debug.Log("HOPPING !!! (+400)");
-            is_hopping = true;
-            score += (int)GameRoot.SCORE_TYPE.HOP;
-            UsingDash(DASH_TYPE.HOPPING);
+            is_grounded = true;
         }
     }
 
-    private void CheckMeters()
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            is_grounded = false;
+        }
+    }
+
+    private void CheckDistacne()
     {
         meter = Vector3.Distance(startPos, this.transform.position);
     }

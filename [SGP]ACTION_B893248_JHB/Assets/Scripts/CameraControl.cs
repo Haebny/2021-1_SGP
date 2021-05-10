@@ -13,7 +13,7 @@ public class CameraControl : MonoBehaviour
         // 멤버 변수 player에 Player 오브젝트를 할당.
         this.player = GameObject.FindGameObjectWithTag("Player");
         // 카메라 위치(this.transform.position)와 플레이어 위치(this.player.transform.position)의 차이.
-        this.position_offset = this.transform.position - this.player.transform.position + new Vector3(5, 3, -15);
+        this.position_offset = this.transform.position - this.player.transform.position + new Vector3(5, 2.5f, -15);
 
         // 멤버 변수 player_control에 PlayerControl 컴포넌트 할당;
         this.player_control = player.GetComponent<PlayerControl>();

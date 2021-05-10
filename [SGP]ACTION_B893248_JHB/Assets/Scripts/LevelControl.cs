@@ -17,7 +17,7 @@ public class LevelData
 
     public Range floor_count; // 발판 블록 수의 범위.
     public Range height_diff; // 발판의 높이 범위.
-    public int apear_Fobs; // 장애물 확률
+    //public int apear_Fobs; // 장애물 확률
     //public int continuity;  // 블록의 연속개수
 
     public LevelData()
@@ -26,7 +26,7 @@ public class LevelData
         this.player_speed = 6.0f; // 플레이어의 속도 초기화.
         this.floor_count.min = 10; // 발판 블록 수의 최솟값을 초기화.
         this.floor_count.max = 10; // 발판 블록 수의 최댓값을 초기화.
-        this.apear_Fobs = 3; // 장애물 등장 확률은 33%
+        //this.apear_Fobs = 3; // 장애물 등장 확률은 33%
         this.height_diff.min = 0; // 발판 높이 변화의 최솟값을 초기화.
         this.height_diff.max = 0; // 발판 높이 변화의 최댓값을 초기화.
     }
@@ -39,7 +39,7 @@ public class LevelControl : MonoBehaviour
     {
         public Block.TYPE block_type; // 블록의 종류.
         public int max_count; // 블록의 최대 개수.
-        public int height; // 블록을 배치할 높이.
+        public float height; // 블록을 배치할 높이.
         public int current_count; // 작성한 블록의 개수.
     };
 
@@ -50,8 +50,6 @@ public class LevelControl : MonoBehaviour
     public int level = 0;
 
     //private List<LevelData> level_datas = new List<LevelData>();
-    public int HEIGHT_MAX = 1;
-    public int HEIGHT_MIN = 1;
 
     //프로필 노트에 실제로 기록하는 처리를 한다.
     private void ClearNextBlock(ref CreationInfo block)
@@ -78,23 +76,42 @@ public class LevelControl : MonoBehaviour
 
     private void UpdateLevel(ref CreationInfo current, CreationInfo previous)
     {
+        int rand = Random.Range(1, 101);
+
         switch (previous.block_type)
         {
             case Block.TYPE.FLOOR: // 이번 블록이 일반 평지일 경우.
-                int rand = Random.Range(1, 101);
 
                 // 일정 확률로 장애물 오브젝트 등장
-                if (rand % 3 == 0)
+                if (rand % 2 == 0)
                 {
                     current.block_type = Block.TYPE.OBSTACLE_F; // 다음 번은 평지 장애물을 만든다.
                     current.max_count = 1; // 평지 장애물은 1개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
                 }
 
-                // 일정 확률로 경사면 등장
+                // 일정 확률로 열쇠 등장
+                else if (rand % 3 == 0)
+                {
+                    current.block_type = Block.TYPE.KEY; // 다음 번은 급경사면을 만든다.
+                    current.max_count = 1; // 열쇠는 1개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                // 일정 확률로 박스 등장
+                else if (rand % 5== 0)
+                {
+                    current.block_type = Block.TYPE.BOX; // 다음 번은 박스를 만든다.
+                    current.max_count = 1; // 박스는 1개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                // 일정 확률로 급경사면 등장
                 else if (rand % 4 == 0)
                 {
-                    current.block_type = Block.TYPE.SLOPE1; // 다음 번은 급경사면을 만든다.
-                    current.max_count = 20; // 급경사면은 20개 만든다.
+                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 경사면을 만든다.
+                    current.max_count = 15; // 경사면은 15개 만든다.
+                    current.height = previous.height - 3f; // 높이를 이전보다 낮게 한다
                 }
 
                 // 이외에는 일반 평지 등장
@@ -102,20 +119,24 @@ public class LevelControl : MonoBehaviour
                 {
                     current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
                     current.max_count = 10; // 일반 평지는 20개 만든다.
-                                            //current.height = previous.height; // 높이를 이전과 같게 한다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
                 }
+
                 break;
+
             case Block.TYPE.OBSTACLE_F: // 이번 블록이 평지 장애물일 경우
-                current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지을 만든다.
-                current.max_count = 20; // 급경사면은 20개 만든다.
-                break;
-            case Block.TYPE.SLOPE1: // 이번 블록이 급경사면일 경우.
-                current.block_type = Block.TYPE.SLOPE2; // 다음은 완경사면을 만든다.
-                current.max_count = 3; // 바닥은 3개 만든다.
-                break;
-            case Block.TYPE.SLOPE2:
-                current.block_type = Block.TYPE.FLOOR;
-                current.max_count = 10;
+            case Block.TYPE.KEY:
+            case Block.TYPE.BOX:
+                if (rand % 2 == 0)
+                {
+                    current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
+                    current.max_count = 15; // 평지는 최대 10개 만든다.
+                }
+                else
+                {
+                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 일반 평지를 만든다.
+                    current.max_count = 10; // 급경사면은 최대 15개 만든다.
+                }
                 break;
         }
     }

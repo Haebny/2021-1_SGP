@@ -30,6 +30,7 @@ public class UIController : MonoBehaviour
 
     private void Update()
     {
+        CountItems();
         ShowScore();
         ShowWarning();
     }
@@ -101,13 +102,13 @@ public class UIController : MonoBehaviour
     // 산불과 플레이어와이 거리를 기반으로 경고해주는 메소드
     public void ShowWarning()
     {
-        FireController.STATE level = fire.CheckDistance();        
+        FireController.LEVEL level = fire.CheckDistance();        
 
-        if(level == FireController.STATE.LEVEL1)
+        if(level == FireController.LEVEL.LEVEL1)
         {
             image.sprite = Resources.Load<Sprite>("Image/fire1");
         }
-        else if(level == FireController.STATE.LEVEL2)
+        else if(level == FireController.LEVEL.LEVEL2)
         {
             image.sprite = Resources.Load<Sprite>("Image/fire2");
         }

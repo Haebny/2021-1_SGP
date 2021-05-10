@@ -6,9 +6,15 @@ public class BlockCreator : MonoBehaviour
 {
     public GameObject[] blockPrefabs; // 블록을 저장할 배열.
     private int block_count = 0; // 생성한 블록의 개수.
+    private int count = 0;
 
     public void CreateBlock(Vector3 block_position, Block.TYPE next_block_type)
     {
+        if (next_block_type == Block.TYPE.SLOPE)
+            count++;
+
+        block_position.y -= count * 3;
+
         // 블록을 생성하고 go에 보관한다.
         GameObject go = GameObject.Instantiate(this.blockPrefabs[(int)next_block_type]) as GameObject;
         go.transform.position = block_position; // 블록의 위치를 이동.
