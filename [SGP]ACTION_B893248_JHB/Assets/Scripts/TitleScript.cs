@@ -5,11 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class TitleScript : MonoBehaviour
 {
-    void Update()
+    public void GameStart()
     {
-        if (Input.GetMouseButtonDown(0) || Input.anyKey)
-        {
-            SceneManager.LoadScene("MainScene");
-        }
+        SceneManager.LoadScene("MainScene");
     }
 }

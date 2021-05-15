@@ -45,6 +45,8 @@ public class UIController : MonoBehaviour
         {
             // Pause 패널 띄우기
             PausePanel.SetActive(!PausePanel.activeSelf);
+            TextMeshProUGUI resumeTime = this.transform.Find("Pause Panel").GetChild(0).GetComponent<TextMeshProUGUI>();
+            resumeTime.text = "Pause Game";
             Time.timeScale = 0f;
             Text.text = "Go";
         }
@@ -52,6 +54,7 @@ public class UIController : MonoBehaviour
         {
             StartCoroutine(ResumeTimer(3));
             Text.text = "||";
+            StopCoroutine("ResumeTimer");
         }
     }
 
@@ -73,6 +76,7 @@ public class UIController : MonoBehaviour
 
         // Pause 패널 없애기
         PausePanel.SetActive(!PausePanel.activeSelf);
+        yield return null;
     }
 
     // 열쇠와 대시의 개수를 알려주는 메소드
@@ -106,15 +110,15 @@ public class UIController : MonoBehaviour
 
         if(level == FireController.LEVEL.LEVEL1)
         {
-            image.sprite = Resources.Load<Sprite>("Image/fire1");
+            image.sprite = Resources.Load<Sprite>("Image/Icons/fire1");
         }
         else if(level == FireController.LEVEL.LEVEL2)
         {
-            image.sprite = Resources.Load<Sprite>("Image/fire2");
+            image.sprite = Resources.Load<Sprite>("Image/Icons/fire2");
         }
         else
         {
-            image.sprite = Resources.Load<Sprite>("Image/fire3");
+            image.sprite = Resources.Load<Sprite>("Image/Icons/fire3");
         }
     }
 

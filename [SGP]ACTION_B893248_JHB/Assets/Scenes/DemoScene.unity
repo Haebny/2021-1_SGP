@@ -1667,7 +1667,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e72305525ef57c44b9bcde89c95973d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  level_data_text: {fileID: 4900000, guid: 934ca15a22d57da4c903b3df7cf03d2e, type: 3}
 --- !u!114 &1197334225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1695,8 +1694,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   block_count: 0
   level: 0
-  HEIGHT_MAX: 20
-  HEIGHT_MIN: -4
 --- !u!1 &1375622674
 GameObject:
   m_ObjectHideFlags: 0
@@ -6840,10 +6837,15 @@ MonoBehaviour:
   next_step: -1
   step_timer: 0
   is_landed: 0
+  is_grounded: 0
   is_colided: 0
   is_key_released: 0
+  is_dashing: 0
+  is_perfect: 0
+  is_mid: 0
   current_speed: 0
   level_control: {fileID: 1197334226}
+  click_count: 0
 --- !u!65 &1693416421
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6892,7 +6894,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1693416419}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -7.319, y: -1.5, z: 0}
+  m_LocalPosition: {x: -3.65, y: -1.5, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_Children:
   - {fileID: 561865021}
