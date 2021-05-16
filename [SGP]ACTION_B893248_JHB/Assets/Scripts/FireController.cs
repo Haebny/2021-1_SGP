@@ -28,7 +28,7 @@ public class FireController : MonoBehaviour
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
-        player = GameObject.Find("Player").GetComponent<PlayerControl>();
+        player = GameObject.FindObjectOfType<PlayerControl>().GetComponent<PlayerControl>();
         level = LEVEL.LEVEL1;
     }
 

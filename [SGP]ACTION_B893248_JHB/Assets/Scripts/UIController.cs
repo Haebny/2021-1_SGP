@@ -19,7 +19,7 @@ public class UIController : MonoBehaviour
 
     private void Start()
     {
-        player = GameObject.Find("Player").GetComponent<PlayerControl>();
+        player = GameObject.FindObjectOfType<PlayerControl>().GetComponent<PlayerControl>();
         root = GameObject.FindObjectOfType<GameRoot>().GetComponent<GameRoot>();
         fire = GameObject.FindObjectOfType<FireController>().GetComponent<FireController>();
         image = this.transform.Find("Fire Image").GetComponent<Image>();
@@ -79,10 +79,10 @@ public class UIController : MonoBehaviour
         yield return null;
     }
 
-    // 열쇠와 대시의 개수를 알려주는 메소드
+    // 열쇠와 돌진의 개수를 알려주는 메소드
     public void CountItems()
     {
-        // 대시 횟수
+        // 돌진 횟수
         Text = this.transform.Find("Dash Button").transform.GetChild(0).GetComponent<TextMeshProUGUI>();
         Text.text = "x " + player.Skill.ToString();
 
