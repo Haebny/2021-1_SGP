@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class FireController : MonoBehaviour
 {
-    public float ACCELERATION = 10.0f; // 가속도.
-    public float SPEED_MAX = 5.0f; // 속도의 최댓값.
-    public float current_speed = 0.0f; // 현재 속도.
+    public float ACCELERATION = 5.0f; // 가속도.
+    public float SPEED_MAX = 7.0f; // 속도의 최댓값.
+    public float current_speed = 5.0f; // 현재 속도.
     Rigidbody rb;
 
     private bool is_grounded = false;
@@ -37,28 +37,24 @@ public class FireController : MonoBehaviour
     {
         CheckDistance();
 
-        //if (is_locked == false)
-        //    CheckPosition();
-
         velocity = this.GetComponent<Rigidbody>().velocity; // 속도를 설정.
         this.current_speed = 5.0f;
 
         switch (this.level)
         {
             case LEVEL.LEVEL1:
-                SPEED_MAX = 9f;
+                SPEED_MAX = 7f;
                 break;
             case LEVEL.LEVEL2:
-                SPEED_MAX = 10.5f;
+                SPEED_MAX = 8f;
                 break;
             case LEVEL.LEVEL3:
-                SPEED_MAX = 13f;
+                SPEED_MAX = 9f;
                 break;
             case LEVEL.ERROR:
                 SPEED_MAX = 0f;
                 break;
         }
-        ACCELERATION = SPEED_MAX;
 
         if (Input.GetKeyDown(KeyCode.Keypad1))
             level = LEVEL.LEVEL1;
@@ -71,7 +67,7 @@ public class FireController : MonoBehaviour
         velocity.x += ACCELERATION * Time.deltaTime;
 
         // 속도가 최고 속도 제한을 넘으면.
-        if (Mathf.Abs(velocity.x) > this.current_speed && is_locked)
+        if (Mathf.Abs(velocity.x) > SPEED_MAX && is_locked)
         {
             // 최고 속도 제한 이하로 유지한다.
             velocity.x *= this.current_speed / Mathf.Abs(velocity.x);

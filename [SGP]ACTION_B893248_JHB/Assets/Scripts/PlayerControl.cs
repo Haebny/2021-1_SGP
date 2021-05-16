@@ -44,6 +44,14 @@ public class PlayerControl : MonoBehaviour
         RIDING
     };
 
+    public enum LEVEL
+    {
+        LV1 = 1,
+        LV2,
+        LV3
+    }
+    public LEVEL Level = LEVEL.LV1;
+
     [SerializeField]private bool is_landed = false; // 착지했는가.
     public bool Is_landed    { get { return is_landed; } }
     [SerializeField] private bool is_grounded= false; // 착지했는가2.
@@ -51,8 +59,15 @@ public class PlayerControl : MonoBehaviour
     private bool is_fried = false; // 산불과 닿았는가.
     public bool Is_fried { get { return is_fried; } } 
     [SerializeField] private bool is_key_released = false; // 버튼이 떨어졌는가.
+    private bool gameOver = false;
+    public bool GameOver { get { return gameOver; } }
     public bool Is_key_released { get { return is_key_released; } } 
     [SerializeField]private bool is_dashing = false; // 돌진을 사용하는 중인가.
+    private bool levelUp = false;
+    public bool LevelUp {
+        get { return levelUp; }
+        set { levelUp = value; }
+    }
     private bool is_hopping = false; // 장애물을 밟았는가
     private bool is_perfect = false; // 공중제비를 모두 돌았는가
     private bool is_tumbling = false;// 공중제비를 도는 중인가
@@ -81,9 +96,14 @@ public class PlayerControl : MonoBehaviour
 
     void Start()
     {
+        gameOver = false;
         audio = GetComponent<AudioSource>();
         startPos = transform.position;
         this.next_step = STEP.RUN;
+
+        PlayerPrefs.SetInt("Score", 0);
+        PlayerPrefs.SetInt("Distance", 0);
+        PlayerPrefs.SetInt("TotalScore", 0);
 
         // 동물 타입 지정
         if (this.name == "Dog")
@@ -100,7 +120,6 @@ public class PlayerControl : MonoBehaviour
     {
         velocity = this.GetComponent<Rigidbody>().velocity; // 속도를 설정.
         //this.current_speed = this.level_control.GetPlayerSpeed();
-        this.current_speed = 7.0f;
         this.CheckLanded(); // 착지 상태인지 체크.
         this.CheckDistacne(); // 플레이어의 이동 거리를 계산한다.
 
@@ -108,8 +127,34 @@ public class PlayerControl : MonoBehaviour
         if (is_fried)
         {
             this.next_step = STEP.MISS; // '실패' 상태로 한다.
+
+            // 결과화면 띄우기
+            PlayerPrefs.SetInt("Score", score);
+            PlayerPrefs.SetInt("Distance", (int)meter);
+            int totalScore = score + (int)meter;
+            PlayerPrefs.SetInt("TotalScore", totalScore);
+
+            gameOver = true;
             return;
         }
+
+        if(meter == 500 && levelUp == false)
+        {
+            Level = LEVEL.LV2;
+            levelUp = true;
+        }
+        else if(meter == 1200 && levelUp == false)
+        {
+            Level = LEVEL.LV3;
+            levelUp = true;
+        }
+
+        if(Level == LEVEL.LV1)
+            this.current_speed = 7f;
+        else if(Level == LEVEL.LV2)
+            this.current_speed = 8f;
+        else
+            this.current_speed = 9;
 
         // 마우스를 떼면 텀블링을 카운트하지 않음
         if (Input.GetMouseButtonUp(0))
@@ -144,7 +189,7 @@ public class PlayerControl : MonoBehaviour
         {
             // 넘어지면 cry 효과음
             audio.clip = audioClips[2];
-            audio.volume = 0.5f;
+            audio.volume = 0.8f;
             audio.Play();
 
             // 넘어진 것을 보이기 위해 회전
@@ -190,13 +235,6 @@ public class PlayerControl : MonoBehaviour
         // 타이머 세팅
         if (Input.GetMouseButtonDown(0) && is_landed == true)
         {
-            // 점프하면 jump 효과음
-            if (!audio.isPlaying)
-            {
-                audio.clip = audioClips[0];
-                audio.volume = 0.5f;
-                audio.Play();
-            }
             // 텀블링 체크
             if (is_tumbling == false)
             {
@@ -207,6 +245,13 @@ public class PlayerControl : MonoBehaviour
             // UI를 제외한 화면 터치.
             if (EventSystem.current.IsPointerOverGameObject() == false)
             {
+                // 점프하면 jump 효과음
+                if (!audio.isPlaying)
+                {
+                    audio.clip = audioClips[0];
+                    audio.volume = 0.7f;
+                    audio.Play();
+                }
                 this.click_timer = 0.0f; // 타이머를 리셋.
             }
         }
@@ -278,7 +323,7 @@ public class PlayerControl : MonoBehaviour
                 velocity.x += PlayerControl.ACCELERATION * Time.deltaTime;
 
                 // 계산으로 구한 속도가 설정해야 할 속도를 넘으면.
-                if (Mathf.Abs(velocity.x) > this.current_speed && !is_dashing)
+                if (Mathf.Abs(velocity.x) > SPEED_MAX && !is_dashing)
                 {
                     // 넘지 않게 조정한다.
                     velocity.x *= this.current_speed / Mathf.Abs(velocity.x);
@@ -389,6 +434,8 @@ public class PlayerControl : MonoBehaviour
     // 돌진 스킬 처리
     IEnumerator Dash(int sec)
     {
+        Debug.Log("DASH !!!");
+
         // 돌진 시 run 효과음
         if (!audio.isPlaying)
         {
@@ -396,8 +443,6 @@ public class PlayerControl : MonoBehaviour
             audio.volume = 1.0f;
             audio.Play();
         }
-
-        Debug.Log("DASH !!!");
         is_dashing = true;
 
         // 스킬 사용
@@ -448,9 +493,12 @@ public class PlayerControl : MonoBehaviour
         if (other.gameObject.CompareTag("Box"))
         {
             // 상자를 열지 못하는 조건: 열쇠가 없거나 돌진이 꽉 찼을 때
-            if (animalType == ANIMAL_TYPE.DOG && skill > 1 || key==0)
+            if (key == 0)
                 return;
-            else if (key == 0 || skill > 2)
+            else if (animalType == ANIMAL_TYPE.DOG && skill > 0)
+                return;
+            else if ((animalType == ANIMAL_TYPE.CAT
+                || animalType == ANIMAL_TYPE.CHICKEN) && skill > 1)
                 return;
 
             // 열쇠를 사용하여 상자 속 Dash를 얻음
@@ -497,7 +545,7 @@ public class PlayerControl : MonoBehaviour
 
             // falldown 효과음
             audio.clip = audioClips[5];
-            audio.volume = 0.5f;
+            audio.volume = 0.7f;
             audio.Play();
 
             AudioSource crush = transform.GetChild(1).GetComponent<AudioSource>();

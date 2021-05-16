@@ -19,6 +19,22 @@ public class ButtonController : MonoBehaviour
         StartCoroutine(ChangeIcon());
     }
 
+    void OnEnable()
+    {
+        if (ButtonController.Current == 2)
+            return;
+
+        StartCoroutine(ChangeIcon());
+    }
+
+    void OnDisable()
+    {
+        if (ButtonController.Current == 2)
+            return;
+
+        StopCoroutine(ChangeIcon());
+    }
+
     // 다음 조작법을 보여주기
     public void NextHTP()
     {
@@ -26,7 +42,9 @@ public class ButtonController : MonoBehaviour
 
         model.SetActive(false);
         ButtonController.Current++;
-        ButtonController.Current %= 2;
+        if (ButtonController.Current < 0)
+            ButtonController.Current = 3 + ButtonController.Current;
+        ButtonController.Current %= 3;
 
         ChangeImage();
         return;
@@ -39,9 +57,9 @@ public class ButtonController : MonoBehaviour
 
         model.SetActive(false);
         ButtonController.Current--;
-        if (Current < 0)
-            Current = Mathf.Abs(Current);
-        ButtonController.Current %= 2;
+        if (ButtonController.Current < 0)
+            ButtonController.Current = 3 + ButtonController.Current;
+        ButtonController.Current %= 3;
 
         ChangeImage();
         return;
@@ -60,17 +78,20 @@ public class ButtonController : MonoBehaviour
                 model = this.transform.parent.Find("HTP2").gameObject;
                 model.SetActive(true);
                 break;
-            //case 2:
-            //    model = this.transform.parent.Find("HTP3").gameObject;
-            //    model.SetActive(true);
-            //    break;
+            case 2:
+                model = this.transform.parent.Find("HTP3").gameObject;
+                model.SetActive(true);
+                break;
             //case 3:
             //    model = this.transform.parent.Find("HTP4").gameObject;
             //    model.SetActive(true);
-                break;
+            //    break;
             default:
                 break;
         }
+
+        if (ButtonController.Current == 2)
+            return;
 
         StartCoroutine(ChangeIcon());
         return;
@@ -104,7 +125,7 @@ public class ButtonController : MonoBehaviour
                 if(isTouch)
                     yield return new WaitForSeconds(0.5f);
                 else
-                    yield return new WaitForSeconds(1f);
+                    yield return new WaitForSeconds(1.5f);
             }
 
             i++;

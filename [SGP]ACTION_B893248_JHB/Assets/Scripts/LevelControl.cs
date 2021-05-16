@@ -51,6 +51,11 @@ public class LevelControl : MonoBehaviour
 
     //private List<LevelData> level_datas = new List<LevelData>();
 
+    public void LevelUp()
+    {
+        level++;
+    }
+
     //프로필 노트에 실제로 기록하는 처리를 한다.
     private void ClearNextBlock(ref CreationInfo block)
     {
@@ -76,67 +81,19 @@ public class LevelControl : MonoBehaviour
 
     private void UpdateLevel(ref CreationInfo current, CreationInfo previous)
     {
-        int rand = Random.Range(1, 101);
-
-        switch (previous.block_type)
+        switch (level)
         {
-            case Block.TYPE.FLOOR: // 이번 블록이 일반 평지일 경우.
-
-                // 일정 확률로 장애물 오브젝트 등장
-                if (rand % 2 == 0)
-                {
-                    current.block_type = Block.TYPE.OBSTACLE_F; // 다음 번은 평지 장애물을 만든다.
-                    current.max_count = 1; // 평지 장애물은 1개 만든다.
-                    current.height = previous.height; // 높이를 이전과 같게 한다.
-                }
-
-                // 일정 확률로 열쇠 등장
-                else if (rand % 3 == 0)
-                {
-                    current.block_type = Block.TYPE.KEY; // 다음 번은 급경사면을 만든다.
-                    current.max_count = 1; // 열쇠는 1개 만든다.
-                    current.height = previous.height; // 높이를 이전과 같게 한다.
-                }
-
-                // 일정 확률로 박스 등장
-                else if (rand % 5== 0)
-                {
-                    current.block_type = Block.TYPE.BOX; // 다음 번은 박스를 만든다.
-                    current.max_count = 1; // 박스는 1개 만든다.
-                    current.height = previous.height; // 높이를 이전과 같게 한다.
-                }
-
-                // 일정 확률로 급경사면 등장
-                else if (rand % 4 == 0)
-                {
-                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 경사면을 만든다.
-                    current.max_count = 15; // 경사면은 15개 만든다.
-                    current.height = previous.height - 3f; // 높이를 이전보다 낮게 한다
-                }
-
-                // 이외에는 일반 평지 등장
-                else
-                {
-                    current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 10; // 일반 평지는 20개 만든다.
-                    current.height = previous.height; // 높이를 이전과 같게 한다.
-                }
-
+            case 1:
+                SetLevel1(ref current, previous);
                 break;
-
-            case Block.TYPE.OBSTACLE_F: // 이번 블록이 평지 장애물일 경우
-            case Block.TYPE.KEY:
-            case Block.TYPE.BOX:
-                if (rand % 2 == 0)
-                {
-                    current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 15; // 평지는 최대 10개 만든다.
-                }
-                else
-                {
-                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 10; // 급경사면은 최대 15개 만든다.
-                }
+            case 2:
+                SetLevel2(ref current, previous);
+                break;
+            case 3:
+                SetLevel3(ref current, previous);
+                break;
+            default:
+                SetLevel1(ref current, previous);
                 break;
         }
     }
@@ -297,4 +254,216 @@ public class LevelControl : MonoBehaviour
     //{
     //    return (this.level_datas[this.level].player_speed);
     //}
+
+    public void SetLevel1(ref CreationInfo current, CreationInfo previous)
+    {
+        Debug.Log("LEVEL 1");
+        int rand = Random.Range(1, 101);
+
+        switch (previous.block_type)
+        {
+            case Block.TYPE.FLOOR: // 이번 블록이 일반 평지일 경우.
+
+                // 일정 확률로 장애물 오브젝트 등장
+                if (rand % 2 == 0)
+                {
+                    current.block_type = Block.TYPE.OBSTACLE_R; // 다음 번은 평지 장애물을 만든다.
+                    current.max_count = 1; // 평지 장애물은 1개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                // 일정 확률로 열쇠 등장
+                else if (rand % 3 == 0)
+                {
+                    current.block_type = Block.TYPE.KEY; // 다음 번은 급경사면을 만든다.
+                    current.max_count = 1; // 열쇠는 1개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                // 일정 확률로 박스 등장
+                else if (rand % 5 == 0)
+                {
+                    current.block_type = Block.TYPE.BOX; // 다음 번은 박스를 만든다.
+                    current.max_count = 1; // 박스는 1개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                // 일정 확률로 급경사면 등장
+                else if (rand % 4 == 0)
+                {
+                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 경사면을 만든다.
+                    current.max_count = 7; // 경사면은 7개 만든다.
+                    current.height = previous.height - 3f; // 높이를 이전보다 낮게 한다
+                }
+
+                // 이외에는 일반 평지 등장
+                else
+                {
+                    current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
+                    current.max_count = 30; // 일반 평지는 30개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                break;
+
+            case Block.TYPE.OBSTACLE_F: // 이번 블록이 평지 장애물일 경우
+            case Block.TYPE.KEY:
+            case Block.TYPE.BOX:
+                if (rand % 2 == 0)
+                {
+                    current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
+                    current.max_count = 30; // 평지는 최대 30개 만든다.
+                }
+                else
+                {
+                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 일반 평지를 만든다.
+                    current.max_count = 7; // 급경사면은 최대 7개 만든다.
+                }
+                break;
+        }
+    }
+
+    public void SetLevel2(ref CreationInfo current, CreationInfo previous)
+    {
+        Debug.Log("LEVEL 2");
+        int rand = Random.Range(1, 101);
+
+        switch (previous.block_type)
+        {
+            case Block.TYPE.FLOOR: // 이번 블록이 일반 평지일 경우.
+
+                // 일정 확률로 장애물 오브젝트 등장
+                if (rand % 2 == 0)
+                {
+                    if (rand % 2 == 0)
+                        current.block_type = Block.TYPE.OBSTACLE_R;     // 바위 생성.
+                    else
+                        current.block_type = Block.TYPE.OBSTACLE_T;     // 묘비 생성.
+                    current.max_count = 1; // 평지 장애물은 1개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                // 일정 확률로 열쇠 등장
+                else if (rand % 3 == 0)
+                {
+                    current.block_type = Block.TYPE.KEY; // 다음 번은 급경사면을 만든다.
+                    current.max_count = 1; // 열쇠는 1개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                // 일정 확률로 박스 등장
+                else if (rand % 5 == 0)
+                {
+                    current.block_type = Block.TYPE.BOX; // 다음 번은 박스를 만든다.
+                    current.max_count = 1; // 박스는 1개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                // 일정 확률로 급경사면 등장
+                else if (rand % 4 == 0)
+                {
+                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 경사면을 만든다.
+                    current.max_count = 7; // 경사면은 7개 만든다.
+                    current.height = previous.height - 3f; // 높이를 이전보다 낮게 한다
+                }
+
+                // 이외에는 일반 평지 등장
+                else
+                {
+                    current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
+                    current.max_count = 20; // 일반 평지는 20개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                break;
+
+            case Block.TYPE.OBSTACLE_F: // 이번 블록이 평지 장애물일 경우
+            case Block.TYPE.KEY:
+            case Block.TYPE.BOX:
+                if (rand % 2 == 0)
+                {
+                    current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
+                    current.max_count = 20; // 평지는 최대 20개 만든다.
+                }
+                else
+                {
+                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 일반 평지를 만든다.
+                    current.max_count = 10; // 급경사면은 최대 10개 만든다.
+                }
+                break;
+        }
+    }
+
+    public void SetLevel3(ref CreationInfo current, CreationInfo previous)
+    {
+        Debug.Log("LEVEL 3");
+        int rand = Random.Range(1, 101);
+
+        switch (previous.block_type)
+        {
+            case Block.TYPE.FLOOR: // 이번 블록이 일반 평지일 경우.
+
+                // 일정 확률로 장애물 오브젝트 등장
+                if (rand % 2 == 0)
+                {
+                    if (rand % 3 == 0)
+                        current.block_type = Block.TYPE.OBSTACLE_R;     // 바위 생성.
+                    else if(rand % 3== 1)
+                        current.block_type = Block.TYPE.OBSTACLE_T;     // 묘비 생성.
+                    else
+                        current.block_type = Block.TYPE.OBSTACLE_F;     // 묘비 생성.
+                    current.max_count = 1; // 평지 장애물은 1개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                // 일정 확률로 열쇠 등장
+                else if (rand % 3 == 0)
+                {
+                    current.block_type = Block.TYPE.KEY; // 다음 번은 급경사면을 만든다.
+                    current.max_count = 1; // 열쇠는 1개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                // 일정 확률로 박스 등장
+                else if (rand % 5 == 0)
+                {
+                    current.block_type = Block.TYPE.BOX; // 다음 번은 박스를 만든다.
+                    current.max_count = 1; // 박스는 1개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                // 일정 확률로 급경사면 등장
+                else if (rand % 4 == 0)
+                {
+                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 경사면을 만든다.
+                    current.max_count = 15; // 경사면은 15개 만든다.
+                    current.height = previous.height - 3f; // 높이를 이전보다 낮게 한다
+                }
+
+                // 이외에는 일반 평지 등장
+                else
+                {
+                    current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
+                    current.max_count = 15; // 일반 평지는 15개 만든다.
+                    current.height = previous.height; // 높이를 이전과 같게 한다.
+                }
+
+                break;
+
+            case Block.TYPE.OBSTACLE_F: // 이번 블록이 평지 장애물일 경우
+            case Block.TYPE.KEY:
+            case Block.TYPE.BOX:
+                if (rand % 2 == 0)
+                {
+                    current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
+                    current.max_count = 15; // 평지는 최대 15개 만든다.
+                }
+                else
+                {
+                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 일반 평지를 만든다.
+                    current.max_count = 15; // 경사면은 최대 15개 만든다.
+                }
+                break;
+        }
+    }
 }

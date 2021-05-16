@@ -10,12 +10,13 @@ public class Block
     {
         NONE = -1, // 없음.
         FLOOR = 0, // 평면
-        OBSTACLE_F,  // 평지 장애물
+        OBSTACLE_R,  // 평지 장애물 바위
         KEY, // 열쇠
         BOX, // 박스
         SLOPE, // 급경사면
+        OBSTACLE_T,  // 평지 장애물 비석
+        OBSTACLE_F,  // 평지 장애물 펜스
         NUM // 블록이 몇 종류인지(＝5).
-
     };
 };
 
@@ -23,7 +24,7 @@ public class MapCreator : MonoBehaviour
 {
     public static float BLOCK_WIDTH = 1.0f; // 블록의 폭.
     public static float BLOCK_HEIGHT = -6f; // 블록의 높이.
-    public static int BLOCK_NUM_IN_SCREEN = 48; // 화면 내에 들어가는 블록의 개수.
+    public static int BLOCK_NUM_IN_SCREEN = 70; // 화면 내에 들어가는 블록의 개수.
     private LevelControl level_control = null;
     //public TextAsset level_data_text = null;
     private GameRoot game_root = null;
@@ -85,6 +86,7 @@ public class MapCreator : MonoBehaviour
 
         // 지금 만들 블록이 바닥이면 (지금 만들 블록이 장애물이라면)
         if (current.block_type == Block.TYPE.FLOOR || current.block_type == Block.TYPE.OBSTACLE_F
+            || current.block_type == Block.TYPE.OBSTACLE_R || current.block_type == Block.TYPE.OBSTACLE_T
             || current.block_type == Block.TYPE.KEY || current.block_type == Block.TYPE.BOX)
         {
             // block_position의 위치에 블록을 실제로 생성.
