@@ -6,10 +6,11 @@ public class FireController : MonoBehaviour
 {
     public float ACCELERATION = 5.0f; // 가속도.
     public float SPEED_MAX = 7.0f; // 속도의 최댓값.
-    public float current_speed = 5.0f; // 현재 속도.
+    public float current_speed = 6.0f; // 현재 속도.
     Rigidbody rb;
 
-    private bool is_grounded = false;
+    public GameObject Fire;
+    public GameObject FireEffect;
 
     // 산불의 레벨
     public enum LEVEL
@@ -21,9 +22,8 @@ public class FireController : MonoBehaviour
     };
     public LEVEL level;
 
-    public PlayerControl player;
-    private Vector3 velocity;
-    private bool is_locked = true;
+    private PlayerControl player;
+    public Vector3 velocity;
 
     void Start()
     {
@@ -32,24 +32,27 @@ public class FireController : MonoBehaviour
         level = LEVEL.LEVEL1;
     }
 
-
     void Update()
     {
-        CheckDistance();
+        MovePosition();
+        SetPosition();
 
         velocity = this.GetComponent<Rigidbody>().velocity; // 속도를 설정.
-        this.current_speed = 5.0f;
+        
 
         switch (this.level)
         {
             case LEVEL.LEVEL1:
-                SPEED_MAX = 7f;
+                SPEED_MAX = 7.5f;
+                this.current_speed = 7.0f;
                 break;
             case LEVEL.LEVEL2:
-                SPEED_MAX = 8f;
+                SPEED_MAX = 13f;
+                this.current_speed = 10f;
                 break;
             case LEVEL.LEVEL3:
-                SPEED_MAX = 9f;
+                SPEED_MAX = 15f;
+                this.current_speed = 11f;
                 break;
             case LEVEL.ERROR:
                 SPEED_MAX = 0f;
@@ -67,7 +70,7 @@ public class FireController : MonoBehaviour
         velocity.x += ACCELERATION * Time.deltaTime;
 
         // 속도가 최고 속도 제한을 넘으면.
-        if (Mathf.Abs(velocity.x) > SPEED_MAX && is_locked)
+        if (Mathf.Abs(velocity.x) > SPEED_MAX)
         {
             // 최고 속도 제한 이하로 유지한다.
             velocity.x *= this.current_speed / Mathf.Abs(velocity.x);
@@ -76,93 +79,32 @@ public class FireController : MonoBehaviour
         this.GetComponent<Rigidbody>().velocity = velocity;
     }
 
-    // 플레이어와의 거리 계산
-    public LEVEL CheckDistance()
+    // 산불을 이동시키는 메소드
+    private void SetPosition()
     {
-        int distance = (int)Mathf.Abs(Vector3.Distance(this.transform.position, player.transform.position));
+        RaycastHit hit;
+        Debug.DrawRay(transform.position, -transform.up, Color.red, 0.1f);
 
-        if(distance > 30)
+        // 레이캐스트에 닿은 블록이 있다면 산불을 그 위치로 이동
+        if(Physics.Raycast(transform.position, -transform.up, out hit))
         {
-            is_locked = false;
+            if (hit.transform.CompareTag("Ground"))
+            {
+                Vector3 movePos = new Vector3(hit.transform.position.x, hit.transform.position.y + 5f, hit.transform.position.z);
+                FireEffect.transform.position = movePos;
+                Fire.transform.position =  movePos;
+            }
         }
 
-        if (distance > 20)
-            return LEVEL.LEVEL1;
-        else if (distance > 10)
-            return LEVEL.LEVEL2;
-        else
-            return LEVEL.LEVEL3;
+        return;
     }
 
-    //public void ChangeLevel()
-    //{
-    //        switch (this.level)
-    //        {
-    //            case LEVEL.LEVEL1:
-    //                // 계산으로 구한 속도가 설정해야 할 속도를 넘으면.
-    //                if (Mathf.Abs(velocity.x) > this.current_speed)
-    //                {
-    //                    // 넘지 않게 조정한다.
-    //                    velocity.x *= this.current_speed / Mathf.Abs(velocity.x);
-    //                }
-
-    //                break;
-    //            case LEVEL.LEVEL2: // 점프 중일 때.
-    //                if (timer > 10)
-    //                {
-    //                    // 속도를 높인다.
-    //                    velocity.x += PlayerControl.ACCELERATION * Time.deltaTime;
-    //                }
-    //                break;
-
-    //            case LEVEL.LEVEL3:
-    //                break;
-    //        }
-    //        // Rigidbody의 속도를 위에서 구한 속도로 갱신.
-    //        // (이 행은 상태에 관계없이 매번 실행된다).
-    //        this.GetComponent<Rigidbody>().velocity = velocity;
-    //    }
-    //}
-
-    private void OnCollisionEnter(Collision collision)
+    // 체커를 이동시키는 메소드
+    private void MovePosition()
     {
-        if(collision.gameObject.CompareTag("Obstacle"))
-        {
-            Destroy(collision.gameObject);
-            this.GetComponent<Rigidbody>().velocity = velocity;
-        }
-
-        if(collision.gameObject.CompareTag("Player"))
-        {
-            this.velocity = Vector3.zero;
-            level = LEVEL.ERROR;
-        }
-    }
-
-    private void OnCollisionStay(Collision collision)
-    {
-        if(collision.gameObject.CompareTag("Ground"))
-        {
-            is_grounded = true;
-        }
-    }
-
-    private void OnCollisionExit(Collision collision)
-    {
-        if(collision.gameObject.CompareTag("Ground"))
-        {
-            is_grounded = false;
-        }
-    }
-
-    private void CheckPosition()
-    {
-        if(player.transform.position.y > this.transform.position.y || player.transform.position.x < this.transform.position.x)
-        {
-            Debug.Log("SETTING");
-            this.transform.position.Set(player.transform.position.x - 20f, player.transform.position.y + 10f, 0);
-            this.GetComponent<Rigidbody>().velocity = Vector3.zero;
-            is_locked = true;
-        }
+        float xPos = this.transform.position.x + current_speed * Time.deltaTime;
+        float yPos = player.transform.position.y + 50f;
+        Vector3 move = new Vector3(xPos, yPos, 0f);
+        this.transform.position = move;
     }
 }

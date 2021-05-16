@@ -96,10 +96,13 @@ public class PlayerControl : MonoBehaviour
 
     void Start()
     {
+        Time.timeScale = 1.0f;
+
         gameOver = false;
         audio = GetComponent<AudioSource>();
         startPos = transform.position;
         this.next_step = STEP.RUN;
+        levelUp = false;
 
         PlayerPrefs.SetInt("Score", 0);
         PlayerPrefs.SetInt("Distance", 0);
@@ -138,12 +141,12 @@ public class PlayerControl : MonoBehaviour
             return;
         }
 
-        if(meter == 500 && levelUp == false)
+        if(meter > 500 && meter < 510 && levelUp == false)
         {
             Level = LEVEL.LV2;
             levelUp = true;
         }
-        else if(meter == 1200 && levelUp == false)
+        else if(meter > 1200 && meter < 1210 && levelUp == false)
         {
             Level = LEVEL.LV3;
             levelUp = true;

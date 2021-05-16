@@ -12,6 +12,7 @@ public class ResultScript : MonoBehaviour
 
     private void Start()
     {
+        Time.timeScale = 1.0f;
         GetResultScore();
     }
 

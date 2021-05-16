@@ -16,6 +16,7 @@ public class ButtonController : MonoBehaviour
 
     private void Start()
     {
+        Time.timeScale = 1.0f;
         StartCoroutine(ChangeIcon());
     }
 

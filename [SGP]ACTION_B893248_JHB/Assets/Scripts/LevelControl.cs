@@ -257,7 +257,6 @@ public class LevelControl : MonoBehaviour
 
     public void SetLevel1(ref CreationInfo current, CreationInfo previous)
     {
-        Debug.Log("LEVEL 1");
         int rand = Random.Range(1, 101);
 
         switch (previous.block_type)
@@ -325,7 +324,6 @@ public class LevelControl : MonoBehaviour
 
     public void SetLevel2(ref CreationInfo current, CreationInfo previous)
     {
-        Debug.Log("LEVEL 2");
         int rand = Random.Range(1, 101);
 
         switch (previous.block_type)
@@ -396,7 +394,6 @@ public class LevelControl : MonoBehaviour
 
     public void SetLevel3(ref CreationInfo current, CreationInfo previous)
     {
-        Debug.Log("LEVEL 3");
         int rand = Random.Range(1, 101);
 
         switch (previous.block_type)

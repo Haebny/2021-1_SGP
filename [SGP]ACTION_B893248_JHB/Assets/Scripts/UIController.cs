@@ -11,7 +11,7 @@ public class UIController : MonoBehaviour
 
     private PlayerControl player;
     private GameRoot root;
-    private FireController fire;
+    private Fire fire;
     private LevelControl levelControl;
     private Image image;
     private GameObject PausePanel;
@@ -19,14 +19,18 @@ public class UIController : MonoBehaviour
     private Vector3 startPos;
     private float startTime;
 
+    private AudioSource audio;
+    [SerializeField] private AudioClip[] clips;
+
     private void Start()
     {
         player = GameObject.FindObjectOfType<PlayerControl>().GetComponent<PlayerControl>();
         root = GameObject.FindObjectOfType<GameRoot>().GetComponent<GameRoot>();
-        fire = GameObject.FindObjectOfType<FireController>().GetComponent<FireController>();
+        fire = GameObject.FindObjectOfType<Fire>().GetComponent<Fire>();
         levelControl = GameObject.FindObjectOfType<LevelControl>().GetComponent<LevelControl>();
         image = this.transform.Find("Fire Image").GetComponent<Image>();
         PausePanel =this.transform.Find("Pause Panel").gameObject;
+        audio = GetComponent<AudioSource>();
 
         startPos = player.transform.position;
     }
@@ -41,6 +45,7 @@ public class UIController : MonoBehaviour
         CountItems();
         ShowScore();
         ShowWarning();
+
         if (player.LevelUp == true)
         {
             player.LevelUp = false;
@@ -140,13 +145,19 @@ public class UIController : MonoBehaviour
         player.UsingDash(PlayerControl.DASH_TYPE.SKILL);
     }
 
-    public void GoToTitle()
-    {
-        SceneManager.LoadScene("TitleScene");
-    }
+    //public void GoToTitle()
+    //{
+    //    SceneManager.LoadScene("TitleScene");
+    //}
 
     public void GoToEnd()
     {
         SceneManager.LoadScene("ResultScene");
+    }
+
+    public void PlaySound()
+    {
+        audio.clip = clips[0];
+        audio.Play();
     }
 }
