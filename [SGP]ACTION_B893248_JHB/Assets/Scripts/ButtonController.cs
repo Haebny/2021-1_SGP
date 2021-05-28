@@ -22,7 +22,7 @@ public class ButtonController : MonoBehaviour
 
     void OnEnable()
     {
-        if (ButtonController.Current == 2)
+        if (ButtonController.Current == 2 || ButtonController.Current == 3)
             return;
 
         StartCoroutine(ChangeIcon());
@@ -30,7 +30,7 @@ public class ButtonController : MonoBehaviour
 
     void OnDisable()
     {
-        if (ButtonController.Current == 2)
+        if (ButtonController.Current == 2 || ButtonController.Current == 3)
             return;
 
         StopCoroutine(ChangeIcon());
@@ -44,8 +44,8 @@ public class ButtonController : MonoBehaviour
         model.SetActive(false);
         ButtonController.Current++;
         if (ButtonController.Current < 0)
-            ButtonController.Current = 3 + ButtonController.Current;
-        ButtonController.Current %= 3;
+            ButtonController.Current = 4 + ButtonController.Current;
+        ButtonController.Current %= 4;
 
         ChangeImage();
         return;
@@ -59,8 +59,8 @@ public class ButtonController : MonoBehaviour
         model.SetActive(false);
         ButtonController.Current--;
         if (ButtonController.Current < 0)
-            ButtonController.Current = 3 + ButtonController.Current;
-        ButtonController.Current %= 3;
+            ButtonController.Current = 4 + ButtonController.Current;
+        ButtonController.Current %= 4;
 
         ChangeImage();
         return;
@@ -83,15 +83,15 @@ public class ButtonController : MonoBehaviour
                 model = this.transform.parent.Find("HTP3").gameObject;
                 model.SetActive(true);
                 break;
-            //case 3:
-            //    model = this.transform.parent.Find("HTP4").gameObject;
-            //    model.SetActive(true);
-            //    break;
+            case 3:
+                model = this.transform.parent.Find("HTP4").gameObject;
+                model.SetActive(true);
+                break;
             default:
                 break;
         }
 
-        if (ButtonController.Current == 2)
+        if (ButtonController.Current == 2 || ButtonController.Current == 3)
             return;
 
         StartCoroutine(ChangeIcon());

@@ -19,8 +19,6 @@ public class UIController : MonoBehaviour
     private Vector3 startPos;
     private float startTime;
 
-    private AudioSource audio;
-    [SerializeField] private AudioClip[] clips;
 
     private void Start()
     {
@@ -30,7 +28,6 @@ public class UIController : MonoBehaviour
         levelControl = GameObject.FindObjectOfType<LevelControl>().GetComponent<LevelControl>();
         image = this.transform.Find("Fire Image").GetComponent<Image>();
         PausePanel =this.transform.Find("Pause Panel").gameObject;
-        audio = GetComponent<AudioSource>();
 
         startPos = player.transform.position;
     }
@@ -45,12 +42,18 @@ public class UIController : MonoBehaviour
         CountItems();
         ShowScore();
         ShowWarning();
+        ShowMission();
 
         if (player.LevelUp == true)
         {
             player.LevelUp = false;
             levelControl.LevelUp();
         }
+
+        if (Input.GetKeyDown(KeyCode.Keypad4))
+            PlayerPrefs.SetInt("Cat", 0);
+        if (Input.GetKeyDown(KeyCode.Keypad5))
+            PlayerPrefs.SetInt("Chicken", 0);
     }
 
     // 일시정지 기능 메소드
@@ -155,9 +158,66 @@ public class UIController : MonoBehaviour
         SceneManager.LoadScene("ResultScene");
     }
 
-    public void PlaySound()
+    public void ShowMission()
     {
-        audio.clip = clips[0];
-        audio.Play();
+        int count = 0;
+
+        // 고양이를 보유하고 있지 않을 때
+        if (PlayerPrefs.GetInt("Cat") == 0)
+        {
+            //첫번째 미션
+            count = PlayerPrefs.GetInt("Tumbling3");
+
+            if (player.Is_perfect == true)
+            {
+                player.Is_perfect = false;
+                PlayerPrefs.SetInt("Tumbling3", count + 1);
+                count = PlayerPrefs.GetInt("Tumbling3");
+            }
+            Text = transform.Find("Mission Panel").transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            if (count >= 3) // 성공 시 녹색으로 표시
+            {
+                Text.color = Color.green;
+                count = 3;
+            }
+
+            Text.text = "- 텀블링 성공하기 (" + count.ToString() + "/3)";
+
+
+            //두번째 미션
+            count = PlayerPrefs.GetInt("Crushing3");
+
+            if (player.Is_crushing == true)
+            {
+                player.Is_crushing = false;
+                PlayerPrefs.SetInt("Crushing3", count + 1);
+                count = PlayerPrefs.GetInt("Crushing3");
+            }
+            Text = transform.Find("Mission Panel").transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            Text.text = "- 장애물 파괴하기 (" + count.ToString() + "/3)";
+
+            if (count >= 3) // 성공 시 녹색으로 표시
+            { 
+                Text.color = Color.green;
+                count = 3;
+            }
+
+            //// 세번째 미션
+            //count = PlayerPrefs.GetInt("Hopping1");
+
+            //if (player.Is_hopping == true)
+            //{
+            //    PlayerPrefs.SetInt("Hopping1", count + 1);
+            //    count = PlayerPrefs.GetInt("Hopping1");
+            //}
+            //Text = transform.Find("Mission Panel").transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+            //Text.text = "- 장애물 밟기 (" + count.ToString() + "/1)";
+
+            //if (count >= 1) // 성공 시 녹색으로 표시
+            //{ 
+            //    Text.color = Color.green;
+            //    count = 1;
+            //}
+        }
     }
 }

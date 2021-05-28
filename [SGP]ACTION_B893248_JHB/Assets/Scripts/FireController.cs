@@ -37,26 +37,11 @@ public class FireController : MonoBehaviour
         MovePosition();
         SetPosition();
 
-        velocity = this.GetComponent<Rigidbody>().velocity; // 속도를 설정.
-        
-
-        switch (this.level)
+        int distance = (int)Mathf.Abs(Vector3.Distance(this.transform.position, player.transform.position));
+        while (distance > 20)
         {
-            case LEVEL.LEVEL1:
-                SPEED_MAX = 7.5f;
-                this.current_speed = 7.0f;
-                break;
-            case LEVEL.LEVEL2:
-                SPEED_MAX = 13f;
-                this.current_speed = 10f;
-                break;
-            case LEVEL.LEVEL3:
-                SPEED_MAX = 15f;
-                this.current_speed = 11f;
-                break;
-            case LEVEL.ERROR:
-                SPEED_MAX = 0f;
-                break;
+            MovePosition();
+            SetPosition();
         }
 
         if (Input.GetKeyDown(KeyCode.Keypad1))
@@ -66,15 +51,34 @@ public class FireController : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Keypad3))
             level = LEVEL.LEVEL3;
 
+        switch (this.level)
+        {
+            case LEVEL.LEVEL1:
+                SPEED_MAX = 7.5f;
+                this.current_speed = 7.0f;
+                break;
+            case LEVEL.LEVEL2:
+                SPEED_MAX = 13f;
+                this.current_speed = 8.5f;
+                break;
+            case LEVEL.LEVEL3:
+                SPEED_MAX = 15f;
+                this.current_speed = 10f;
+                break;
+            case LEVEL.ERROR:
+                SPEED_MAX = 0f;
+                break;
+        }
 
+        velocity = this.GetComponent<Rigidbody>().velocity; // 속도를 설정.
         velocity.x += ACCELERATION * Time.deltaTime;
 
-        // 속도가 최고 속도 제한을 넘으면.
-        if (Mathf.Abs(velocity.x) > SPEED_MAX)
-        {
-            // 최고 속도 제한 이하로 유지한다.
-            velocity.x *= this.current_speed / Mathf.Abs(velocity.x);
-        }
+        //// 속도가 최고 속도 제한을 넘으면.
+        //if (Mathf.Abs(velocity.x) > SPEED_MAX)
+        //{
+        //    // 최고 속도 제한 이하로 유지한다.
+        //    velocity.x *= this.current_speed / Mathf.Abs(velocity.x);
+        //}
 
         this.GetComponent<Rigidbody>().velocity = velocity;
     }

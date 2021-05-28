@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems; // UI클릭 시 터치 이벤트 발생 방지
+using UnityEngine.SceneManagement; // UI클릭 시 터치 이벤트 발생 방지
 
 public class PlayerControl : MonoBehaviour
 {
@@ -24,13 +25,14 @@ public class PlayerControl : MonoBehaviour
     };
 
     // 플레이어 캐릭터 타입
-    private enum ANIMAL_TYPE
+    public enum ANIMAL_TYPE
     {
         DOG = 0,
         CAT,
         CHICKEN
     }
-    ANIMAL_TYPE animalType;
+    private ANIMAL_TYPE animalType;
+    public ANIMAL_TYPE AnimalType {  get { return animalType; } }
 
     public STEP step = STEP.NONE; // Player의 현재 상태.
     public STEP next_step = STEP.NONE; // Player의 다음 상태.
@@ -54,22 +56,45 @@ public class PlayerControl : MonoBehaviour
 
     [SerializeField]private bool is_landed = false; // 착지했는가.
     public bool Is_landed    { get { return is_landed; } }
+
     [SerializeField] private bool is_grounded= false; // 착지했는가2.
+
     public bool is_collided;
+
     private bool is_fried = false; // 산불과 닿았는가.
-    public bool Is_fried { get { return is_fried; } } 
+    public bool Is_fried { get { return is_fried; } }
+
     [SerializeField] private bool is_key_released = false; // 버튼이 떨어졌는가.
+
     private bool gameOver = false;
     public bool GameOver { get { return gameOver; } }
-    public bool Is_key_released { get { return is_key_released; } } 
+
+    public bool Is_key_released { get { return is_key_released; } }
+
     [SerializeField]private bool is_dashing = false; // 돌진을 사용하는 중인가.
+
+    private bool is_crushing = false; // 오브젝트를 부쉈는가
+    public bool Is_crushing
+    {
+        get { return is_crushing; }
+        set { is_crushing = value; }
+    }
+
     private bool levelUp = false;
     public bool LevelUp {
         get { return levelUp; }
         set { levelUp = value; }
     }
+
     private bool is_hopping = false; // 장애물을 밟았는가
+    public bool Is_hopping { get { return is_hopping; } }
+
     private bool is_perfect = false; // 공중제비를 모두 돌았는가
+    public bool Is_perfect
+    {
+        get { return is_perfect; }
+        set { is_perfect = value; }
+    }
     private bool is_tumbling = false;// 공중제비를 도는 중인가
     private bool setState = true;
 
@@ -94,8 +119,31 @@ public class PlayerControl : MonoBehaviour
     private AudioSource audio;
     public AudioClip[] audioClips;
 
+    private void Awake()
+    {
+        audioClips = new AudioClip[6];
+
+        // 동물 타입 지정
+        if (SceneManager.GetActiveScene().buildIndex == 1)
+        {
+            if (name == "Dog(Clone)")
+                animalType = ANIMAL_TYPE.DOG;
+            else if (name == "Cat(Clone)")
+                animalType = ANIMAL_TYPE.CAT;
+            else if (name == "Chicken(Clone)")
+                animalType = ANIMAL_TYPE.CHICKEN;
+            else
+                animalType = ANIMAL_TYPE.DOG;
+        }
+    }
+
     void Start()
     {
+        string name = PlayerPrefs.GetString("Animal") + "(Clone)";
+
+        if (this.name != name)
+            this.gameObject.SetActive(false);
+
         Time.timeScale = 1.0f;
 
         gameOver = false;
@@ -107,16 +155,6 @@ public class PlayerControl : MonoBehaviour
         PlayerPrefs.SetInt("Score", 0);
         PlayerPrefs.SetInt("Distance", 0);
         PlayerPrefs.SetInt("TotalScore", 0);
-
-        // 동물 타입 지정
-        if (this.name == "Dog")
-            animalType = ANIMAL_TYPE.DOG;
-        else if (this.name == "Cat")
-            animalType = ANIMAL_TYPE.CAT;
-        else if(this.name == "Chicken")
-            animalType = ANIMAL_TYPE.CHICKEN;
-        else
-            animalType = ANIMAL_TYPE.DOG;
     }
 
     void Update()
@@ -164,7 +202,6 @@ public class PlayerControl : MonoBehaviour
         {
             StopCoroutine("TumblingTimer");
             is_perfect = false;
-            is_tumbling = false;
         }
 
         // 텀블링
@@ -475,7 +512,7 @@ public class PlayerControl : MonoBehaviour
             score += 50;
 
             // 획득 시 key 효과음
-            audio.clip = audioClips[3];
+            audio.clip = audioClips[4];
             audio.volume = 1.0f;
             audio.Play();
 
@@ -508,7 +545,7 @@ public class PlayerControl : MonoBehaviour
             key--;
 
             // 획득 시 box 효과음
-            audio.clip = audioClips[4];
+            audio.clip = audioClips[5];
             audio.volume = 1.0f;
             audio.Play();
 
@@ -518,6 +555,14 @@ public class PlayerControl : MonoBehaviour
             Destroy(other.gameObject);  //상자가 열리는 애니메이션으로 대체 시 트리거로 옮길 것
             score += 100;
             skill++;
+        }
+    }
+    private void OnTriggerStay(Collider other)
+    {
+        // 장애물을 스쳤으면 점수를 얻고 돌진효과
+        if (other.CompareTag("Obstacle"))
+        {
+            is_hopping = false;
         }
     }
 
@@ -532,6 +577,7 @@ public class PlayerControl : MonoBehaviour
             // 돌진 상태로 충돌 시 장애물은 파괴되고 점수를 획득
             if(is_dashing)
             {
+                is_crushing = true;
                 Destroy(collision.gameObject);
                 this.GetComponent<Rigidbody>().velocity = velocity;
                 StopCoroutine("ScoreRecord");
@@ -547,7 +593,7 @@ public class PlayerControl : MonoBehaviour
             Destroy(collision.gameObject);
 
             // falldown 효과음
-            audio.clip = audioClips[5];
+            audio.clip = audioClips[3];
             audio.volume = 0.7f;
             audio.Play();
 
@@ -615,5 +661,6 @@ public class PlayerControl : MonoBehaviour
 
         is_perfect = true;
         is_tumbling = false;
+
     }
 }

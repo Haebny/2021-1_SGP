@@ -29,4 +29,10 @@ public class TitleScript : MonoBehaviour
         TextMeshProUGUI bestRecord = GameObject.Find("UI").transform.Find("Record Text").GetComponent<TextMeshProUGUI>();
         bestRecord.text = "Best Record : " + GetBestScore().ToString();
     }
+
+    public void QuitGame()
+    {
+        PlayerPrefs.DeleteAll();
+        Application.Quit();
+    }
 }

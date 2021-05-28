@@ -6,6 +6,7 @@ public class Fire : MonoBehaviour
 {
     FireController fireController;
     private PlayerControl player;
+    private float distance;
 
     private void Start()
     {
