@@ -46,14 +46,35 @@ public class LevelControl : MonoBehaviour
     public CreationInfo previous_block; // 이전에 어떤 블록을 만들었는가.
     public CreationInfo current_block; // 지금 어떤 블록을 만들어야 하는가.
     public CreationInfo next_block; // 다음에 어떤 블록을 만들어야 하는가.
-    public int block_count = 0; // 생성한 블록의 총 수.
-    public int level = 0;
+    public int block_count; // 생성한 블록의 총 수.
+    public int level;
+    public bool isChanged;
 
-    //private List<LevelData> level_datas = new List<LevelData>();
+    private static LevelControl instance;
+    public static LevelControl GetInstance()
+    {
+        if(instance == null)
+        {
+            instance = new LevelControl();
+        }
+        return instance;
+    }
+
+    private void Start()
+    {
+        block_count = 0;
+        level = 0;
+        isChanged = false;
+    }
 
     public void LevelUp()
     {
-        level++;
+        if (isChanged == false)
+        {
+            Debug.Log("LEVEL UP!");
+            level++;
+            isChanged = true;
+        }
     }
 
     //프로필 노트에 실제로 기록하는 처리를 한다.
@@ -250,11 +271,6 @@ public class LevelControl : MonoBehaviour
     //    }
     //}
 
-    //public float GetPlayerSpeed()
-    //{
-    //    return (this.level_datas[this.level].player_speed);
-    //}
-
     public void SetLevel1(ref CreationInfo current, CreationInfo previous)
     {
         int rand = Random.Range(1, 101);
@@ -299,7 +315,7 @@ public class LevelControl : MonoBehaviour
                 else
                 {
                     current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 30; // 일반 평지는 30개 만든다.
+                    current.max_count = 15; // 평지의 최대개수
                     current.height = previous.height; // 높이를 이전과 같게 한다.
                 }
 
@@ -311,7 +327,7 @@ public class LevelControl : MonoBehaviour
                 if (rand % 2 == 0)
                 {
                     current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 30; // 평지는 최대 30개 만든다.
+                    current.max_count = 15; // 평지의 최대개수
                 }
                 else
                 {
@@ -361,7 +377,7 @@ public class LevelControl : MonoBehaviour
                 else if (rand % 4 == 0)
                 {
                     current.block_type = Block.TYPE.SLOPE; // 다음 번은 경사면을 만든다.
-                    current.max_count = 7; // 경사면은 7개 만든다.
+                    current.max_count = 14; // 경서면의 최대개수
                     current.height = previous.height - 3f; // 높이를 이전보다 낮게 한다
                 }
 
@@ -369,7 +385,7 @@ public class LevelControl : MonoBehaviour
                 else
                 {
                     current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 20; // 일반 평지는 20개 만든다.
+                    current.max_count = 10; // 평지의 최대개수
                     current.height = previous.height; // 높이를 이전과 같게 한다.
                 }
 
@@ -381,12 +397,12 @@ public class LevelControl : MonoBehaviour
                 if (rand % 2 == 0)
                 {
                     current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 20; // 평지는 최대 20개 만든다.
+                    current.max_count = 10; // 평지는 최대 20개 만든다.
                 }
                 else
                 {
                     current.block_type = Block.TYPE.SLOPE; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 10; // 급경사면은 최대 10개 만든다.
+                    current.max_count = 10; // 경사면의 최대개수
                 }
                 break;
         }
@@ -433,7 +449,7 @@ public class LevelControl : MonoBehaviour
                 else if (rand % 4 == 0)
                 {
                     current.block_type = Block.TYPE.SLOPE; // 다음 번은 경사면을 만든다.
-                    current.max_count = 15; // 경사면은 15개 만든다.
+                    current.max_count = 15; // 경사면은 20개 만든다.
                     current.height = previous.height - 3f; // 높이를 이전보다 낮게 한다
                 }
 
@@ -441,7 +457,7 @@ public class LevelControl : MonoBehaviour
                 else
                 {
                     current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 15; // 일반 평지는 15개 만든다.
+                    current.max_count = 5; // 일반 평지는 15개 만든다.
                     current.height = previous.height; // 높이를 이전과 같게 한다.
                 }
 
@@ -453,12 +469,12 @@ public class LevelControl : MonoBehaviour
                 if (rand % 2 == 0)
                 {
                     current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 15; // 평지는 최대 15개 만든다.
+                    current.max_count = 7; // 평지의 최대개수
                 }
                 else
                 {
                     current.block_type = Block.TYPE.SLOPE; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 15; // 경사면은 최대 15개 만든다.
+                    current.max_count = 15; // 경사면의 최대개수
                 }
                 break;
         }

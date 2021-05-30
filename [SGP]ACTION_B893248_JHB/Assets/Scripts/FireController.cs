@@ -37,13 +37,6 @@ public class FireController : MonoBehaviour
         MovePosition();
         SetPosition();
 
-        int distance = (int)Mathf.Abs(Vector3.Distance(this.transform.position, player.transform.position));
-        while (distance > 20)
-        {
-            MovePosition();
-            SetPosition();
-        }
-
         if (Input.GetKeyDown(KeyCode.Keypad1))
             level = LEVEL.LEVEL1;
         else if (Input.GetKeyDown(KeyCode.Keypad2))
@@ -71,7 +64,7 @@ public class FireController : MonoBehaviour
         }
 
         velocity = this.GetComponent<Rigidbody>().velocity; // 속도를 설정.
-        velocity.x += ACCELERATION * Time.deltaTime;
+        velocity.x += this.current_speed * Time.deltaTime;
 
         //// 속도가 최고 속도 제한을 넘으면.
         //if (Mathf.Abs(velocity.x) > SPEED_MAX)
@@ -106,8 +99,17 @@ public class FireController : MonoBehaviour
     // 체커를 이동시키는 메소드
     private void MovePosition()
     {
-        float xPos = this.transform.position.x + current_speed * Time.deltaTime;
+        // 플레이어와의 거리 계산
         float yPos = player.transform.position.y + 50f;
+        float xPos;
+        int distance = (int)Mathf.Abs(Vector3.Distance(this.transform.position, player.transform.position));
+
+        if (distance > 55 ) // 플레이어가 너무 멀리 떨어져있으면 당겨오기
+            xPos = player.transform.position.x - 25f;
+
+        else
+            xPos = this.transform.position.x + current_speed * Time.deltaTime;
+
         Vector3 move = new Vector3(xPos, yPos, 0f);
         this.transform.position = move;
     }

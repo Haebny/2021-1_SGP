@@ -19,6 +19,7 @@ public class UIController : MonoBehaviour
     private Vector3 startPos;
     private float startTime;
 
+    public bool levelUP = false;
 
     private void Start()
     {
@@ -46,14 +47,15 @@ public class UIController : MonoBehaviour
 
         if (player.LevelUp == true)
         {
-            player.LevelUp = false;
+            levelUP = true;
             levelControl.LevelUp();
+            player.LevelUp = false;
         }
 
-        if (Input.GetKeyDown(KeyCode.Keypad4))
-            PlayerPrefs.SetInt("Cat", 0);
-        if (Input.GetKeyDown(KeyCode.Keypad5))
-            PlayerPrefs.SetInt("Chicken", 0);
+        //if (Input.GetKeyDown(KeyCode.Keypad4))
+        //    PlayerPrefs.SetInt("Cat", 0);
+        //if (Input.GetKeyDown(KeyCode.Keypad5))
+        //    PlayerPrefs.SetInt("Chicken", 0);
     }
 
     // 일시정지 기능 메소드
@@ -194,13 +196,13 @@ public class UIController : MonoBehaviour
                 count = PlayerPrefs.GetInt("Crushing3");
             }
             Text = transform.Find("Mission Panel").transform.GetChild(1).GetComponent<TextMeshProUGUI>();
-            Text.text = "- 장애물 파괴하기 (" + count.ToString() + "/3)";
-
             if (count >= 3) // 성공 시 녹색으로 표시
             { 
                 Text.color = Color.green;
                 count = 3;
             }
+
+            Text.text = "- 장애물 파괴하기 (" + count.ToString() + "/3)";
 
             //// 세번째 미션
             //count = PlayerPrefs.GetInt("Hopping1");

@@ -151,6 +151,7 @@ public class PlayerControl : MonoBehaviour
         startPos = transform.position;
         this.next_step = STEP.RUN;
         levelUp = false;
+        this.current_speed = 7f;
 
         PlayerPrefs.SetInt("Score", 0);
         PlayerPrefs.SetInt("Distance", 0);
@@ -179,23 +180,20 @@ public class PlayerControl : MonoBehaviour
             return;
         }
 
-        if(meter > 500 && meter < 510 && levelUp == false)
+        if((int)meter == 500 && LevelControl.GetInstance().isChanged == false && levelUp == false)
         {
+            levelUp = true;
             Level = LEVEL.LV2;
-            levelUp = true;
         }
-        else if(meter > 1200 && meter < 1210 && levelUp == false)
+        else if((int)meter == 1200 && LevelControl.GetInstance().isChanged == false && levelUp == false)
         {
-            Level = LEVEL.LV3;
             levelUp = true;
+            Level = LEVEL.LV3;
         }
-
-        if(Level == LEVEL.LV1)
-            this.current_speed = 7f;
-        else if(Level == LEVEL.LV2)
-            this.current_speed = 8f;
         else
-            this.current_speed = 9;
+        {
+            levelUp = false;
+        }
 
         // 마우스를 떼면 텀블링을 카운트하지 않음
         if (Input.GetMouseButtonUp(0))
@@ -580,8 +578,7 @@ public class PlayerControl : MonoBehaviour
                 is_crushing = true;
                 Destroy(collision.gameObject);
                 this.GetComponent<Rigidbody>().velocity = velocity;
-                StopCoroutine("ScoreRecord");
-                StartCoroutine("ScoreRecord", "CRUSH !!! +200");
+                //StartCoroutine("ScoreRecord", "CRUSH !!! +200");  // 획득 점수의 종류 출력
                 Debug.Log("CRUSH !!! (+200)");
                 score += (int)GameRoot.SCORE_TYPE.DESTROY;  // 점수 획득
                 return;

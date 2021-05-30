@@ -18,8 +18,6 @@ public class PlayerCreator : MonoBehaviour
             animal = (GameObject)Instantiate(cat, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
         else
             animal = (GameObject)Instantiate(dog, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-
-        animal.SetActive(true);
     }
 
     private void Start()

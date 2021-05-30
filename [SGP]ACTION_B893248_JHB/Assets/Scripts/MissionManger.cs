@@ -48,7 +48,9 @@ public class MissionManger : MonoBehaviour
 
         PlayerPrefs.SetInt("Tumbling5", 0);
         PlayerPrefs.SetInt("Hopping5", 0);
-        if(PlayerPrefs.HasKey("Cat") == false)
+        PlayerPrefs.SetInt("Rewards", 0);
+        PlayerPrefs.SetInt("Clear", 0);
+        if (PlayerPrefs.HasKey("Cat") == false)
             PlayerPrefs.SetInt("Cat", 0);
         //PlayerPrefs.SetInt("Chicken", 0);
     }
@@ -85,7 +87,10 @@ public class MissionManger : MonoBehaviour
         //    PlayerPrefs.SetInt("Tumbling3", 0);
         //    PlayerPrefs.SetInt("Crushing5", 0);
         //    PlayerPrefs.SetInt("Hopping3", 0);
+        //    PlayerPrefs.SetInt("Clear", 0);
         //}
+
+        PlayerPrefs.SetInt("Clear", 0);
     }
 
     private void CheckMission()
@@ -105,6 +110,7 @@ public class MissionManger : MonoBehaviour
             {
                 Debug.Log("GET CAT");
                 PlayerPrefs.SetInt("Cat", 1);
+                PlayerPrefs.SetInt("Clear", 1);
             }
         }
     }
