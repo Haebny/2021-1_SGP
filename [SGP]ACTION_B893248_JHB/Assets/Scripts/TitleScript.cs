@@ -32,7 +32,15 @@ public class TitleScript : MonoBehaviour
 
     public void QuitGame()
     {
-        PlayerPrefs.DeleteAll();
         Application.Quit();
     }
+
+    // 데이터 삭제
+    public void DeleteData()
+    {
+        PlayerPrefs.DeleteAll();
+        GameObject.Find("Info Image").gameObject.SetActive(true);
+    }
+
+
 }

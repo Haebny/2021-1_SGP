@@ -105,12 +105,15 @@ public class LevelControl : MonoBehaviour
         switch (level)
         {
             case 1:
+                Debug.Log("LV1");
                 SetLevel1(ref current, previous);
                 break;
             case 2:
+                Debug.Log("LV2");
                 SetLevel2(ref current, previous);
                 break;
             case 3:
+                Debug.Log("LV3");
                 SetLevel3(ref current, previous);
                 break;
             default:
@@ -327,7 +330,7 @@ public class LevelControl : MonoBehaviour
                 if (rand % 2 == 0)
                 {
                     current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 15; // 평지의 최대개수
+                    current.max_count = Random.Range(10, 18); // 평지의 최대개수
                 }
                 else
                 {
@@ -349,7 +352,8 @@ public class LevelControl : MonoBehaviour
                 // 일정 확률로 장애물 오브젝트 등장
                 if (rand % 2 == 0)
                 {
-                    if (rand % 2 == 0)
+                    Debug.Log("OBS");
+                    if (rand % 3 == 0)
                         current.block_type = Block.TYPE.OBSTACLE_R;     // 바위 생성.
                     else
                         current.block_type = Block.TYPE.OBSTACLE_T;     // 묘비 생성.
@@ -397,7 +401,7 @@ public class LevelControl : MonoBehaviour
                 if (rand % 2 == 0)
                 {
                     current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 10; // 평지는 최대 20개 만든다.
+                    current.max_count = Random.Range(5, 10); // 평지의 최대개수
                 }
                 else
                 {
@@ -419,12 +423,13 @@ public class LevelControl : MonoBehaviour
                 // 일정 확률로 장애물 오브젝트 등장
                 if (rand % 2 == 0)
                 {
+                    Debug.Log("OBS");
                     if (rand % 3 == 0)
                         current.block_type = Block.TYPE.OBSTACLE_R;     // 바위 생성.
                     else if(rand % 3== 1)
                         current.block_type = Block.TYPE.OBSTACLE_T;     // 묘비 생성.
                     else
-                        current.block_type = Block.TYPE.OBSTACLE_F;     // 묘비 생성.
+                        current.block_type = Block.TYPE.OBSTACLE_F;     // 펜스 생성.
                     current.max_count = 1; // 평지 장애물은 1개 만든다.
                     current.height = previous.height; // 높이를 이전과 같게 한다.
                 }
@@ -463,13 +468,15 @@ public class LevelControl : MonoBehaviour
 
                 break;
 
-            case Block.TYPE.OBSTACLE_F: // 이번 블록이 평지 장애물일 경우
+            case Block.TYPE.OBSTACLE_R: // 이번 블록이 바위 장애물일 경우
+            case Block.TYPE.OBSTACLE_T: // 이번 블록이 묘비 장애물일 경우
+            case Block.TYPE.OBSTACLE_F: // 이번 블록이 펜스 장애물일 경우
             case Block.TYPE.KEY:
             case Block.TYPE.BOX:
                 if (rand % 2 == 0)
                 {
                     current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 7; // 평지의 최대개수
+                    current.max_count = Random.Range(3,8) ; // 평지의 최대개수
                 }
                 else
                 {

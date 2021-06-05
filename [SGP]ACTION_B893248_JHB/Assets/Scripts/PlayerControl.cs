@@ -10,7 +10,6 @@ public class PlayerControl : MonoBehaviour
     public static float ACCELERATION = 10.0f; // 가속도.
     public static float SPEED_MIN = 5.0f; // 속도의 최솟값.
     public static float SPEED_MAX = 10.0f; // 속도의 최댓값.
-    public static float JUMP_HEIGHT_MAX = 4.0f; // 점프 높이.
     public static float JUMP_KEY_RELEASE_REDUCE = 0.5f; // 점프 후의 감속도.
 
     // Player의 각종 상태를 나타내는 자료형 (*열거체)
@@ -115,8 +114,9 @@ public class PlayerControl : MonoBehaviour
     public float Meter { get { return meter; } }
     private Vector3 startPos;
     private Vector3 velocity;
+    private Rigidbody rb;
 
-    private AudioSource audio;
+    private new AudioSource audio;
     public AudioClip[] audioClips;
 
     private void Awake()
@@ -156,12 +156,13 @@ public class PlayerControl : MonoBehaviour
         PlayerPrefs.SetInt("Score", 0);
         PlayerPrefs.SetInt("Distance", 0);
         PlayerPrefs.SetInt("TotalScore", 0);
+
+        rb = this.GetComponent<Rigidbody>();
     }
 
     void Update()
     {
         velocity = this.GetComponent<Rigidbody>().velocity; // 속도를 설정.
-        //this.current_speed = this.level_control.GetPlayerSpeed();
         this.CheckLanded(); // 착지 상태인지 체크.
         this.CheckDistacne(); // 플레이어의 이동 거리를 계산한다.
 
@@ -176,19 +177,20 @@ public class PlayerControl : MonoBehaviour
             int totalScore = score + (int)meter;
             PlayerPrefs.SetInt("TotalScore", totalScore);
 
-            gameOver = true;
-            return;
+            SceneManager.LoadScene("ResultScene");
         }
 
         if((int)meter == 500 && LevelControl.GetInstance().isChanged == false && levelUp == false)
         {
             levelUp = true;
             Level = LEVEL.LV2;
+            FindObjectOfType<FireController>().level = FireController.LEVEL.LEVEL2;
         }
         else if((int)meter == 1200 && LevelControl.GetInstance().isChanged == false && levelUp == false)
         {
             levelUp = true;
             Level = LEVEL.LV3;
+            FindObjectOfType<FireController>().level = FireController.LEVEL.LEVEL3;
         }
         else
         {
@@ -283,6 +285,7 @@ public class PlayerControl : MonoBehaviour
             // UI를 제외한 화면 터치.
             if (EventSystem.current.IsPointerOverGameObject() == false)
             {
+                rb.AddForce(Vector3.up * Time.deltaTime * 1000, ForceMode.Impulse);
                 // 점프하면 jump 효과음
                 if (!audio.isPlaying)
                 {
@@ -338,8 +341,6 @@ public class PlayerControl : MonoBehaviour
             { 
                 // 갱신된 '현재 상태'가.
                 case STEP.JUMP: // '점프'일 때.
-                    // 최고 도달점 높이(JUMP_HEIGHT_MAX)까지 점프할 수 있는 속도를 계산.
-                    velocity.y = Mathf.Sqrt(2.0f * 9.8f * PlayerControl.JUMP_HEIGHT_MAX);
                     // '버튼이 떨어졌음을 나타내는 플래그'를 클리어한다.
                     this.is_key_released = false;
                     break;
@@ -358,7 +359,7 @@ public class PlayerControl : MonoBehaviour
                     return;
                 }
                 // 속도를 높인다.
-                velocity.x += PlayerControl.ACCELERATION * Time.deltaTime;
+                rb.AddForce(Vector3.right * 1000 * Time.deltaTime, ForceMode.Force);
 
                 // 계산으로 구한 속도가 설정해야 할 속도를 넘으면.
                 if (Mathf.Abs(velocity.x) > SPEED_MAX && !is_dashing)
@@ -386,9 +387,9 @@ public class PlayerControl : MonoBehaviour
                     {
                         break; // 아무것도 하지 않고 루프를 빠져나간다.
                     }
-                    // 버튼이 떨어져 있고 상승 중이라면 감속 시작.
-                    // 점프의 상승은 여기서 끝.
-                    velocity.y *= JUMP_KEY_RELEASE_REDUCE;
+                    //// 버튼이 떨어져 있고 상승 중이라면 감속 시작.
+                    //// 점프의 상승은 여기서 끝.
+                    //velocity.y *= JUMP_KEY_RELEASE_REDUCE;
                     this.is_key_released = true;
                 } while (false);
                 break;
@@ -484,7 +485,7 @@ public class PlayerControl : MonoBehaviour
         is_dashing = true;
 
         // 스킬 사용
-        this.GetComponent<Rigidbody>().AddForce(Vector3.right * 5f, ForceMode.Impulse);
+        this.GetComponent<Rigidbody>().AddForce(Vector3.right * 8f * Time.deltaTime, ForceMode.Impulse);
         yield return new WaitForSeconds(sec);
 
         is_dashing = false;
@@ -621,7 +622,6 @@ public class PlayerControl : MonoBehaviour
             {
                 Debug.Log("NICE TUMBLING !!! (+50)");
                 score += 50; // 50점 획득
-                is_perfect = false;
                 UsingDash(DASH_TYPE.HOPPING);
             }
             is_tumbling = false;

@@ -6,6 +6,7 @@ public class FireController : MonoBehaviour
 {
     public float ACCELERATION = 5.0f; // 가속도.
     public float SPEED_MAX = 7.0f; // 속도의 최댓값.
+    public float SPEED_MIN = 7.0f; // 속도의 최댓값.
     public float current_speed = 6.0f; // 현재 속도.
     Rigidbody rb;
 
@@ -47,31 +48,40 @@ public class FireController : MonoBehaviour
         switch (this.level)
         {
             case LEVEL.LEVEL1:
-                SPEED_MAX = 7.5f;
-                this.current_speed = 7.0f;
+                SPEED_MAX = 8f;
+                SPEED_MIN = 7.5f;
+                this.current_speed = 7.5f;
                 break;
             case LEVEL.LEVEL2:
-                SPEED_MAX = 13f;
-                this.current_speed = 8.5f;
+                SPEED_MAX = 9f;
+                SPEED_MIN = 7.5f;
+                this.current_speed = 8f;
                 break;
             case LEVEL.LEVEL3:
-                SPEED_MAX = 15f;
-                this.current_speed = 10f;
+                SPEED_MAX = 9.5f;
+                SPEED_MIN = 8f;
+                this.current_speed = 8.5f;
                 break;
             case LEVEL.ERROR:
                 SPEED_MAX = 0f;
+                SPEED_MIN = 0f;
                 break;
         }
+    }
 
+    private void FixedUpdate()
+    {
         velocity = this.GetComponent<Rigidbody>().velocity; // 속도를 설정.
-        velocity.x += this.current_speed * Time.deltaTime;
+        velocity.x += this.current_speed * Time.fixedDeltaTime * 1.5f;
 
-        //// 속도가 최고 속도 제한을 넘으면.
-        //if (Mathf.Abs(velocity.x) > SPEED_MAX)
-        //{
-        //    // 최고 속도 제한 이하로 유지한다.
-        //    velocity.x *= this.current_speed / Mathf.Abs(velocity.x);
-        //}
+        // 속도가 최고 속도 제한을 넘으면.
+        if (Mathf.Abs(velocity.x) > SPEED_MAX)
+        {
+            // 최고 속도 제한 이하로 유지한다.
+            velocity.x *= this.current_speed / Mathf.Abs(velocity.x);
+            if (velocity.x < SPEED_MIN)
+                velocity.x = SPEED_MIN;
+        }
 
         this.GetComponent<Rigidbody>().velocity = velocity;
     }

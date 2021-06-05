@@ -12,17 +12,17 @@ public class ResultScript : MonoBehaviour
     public GameObject RewardPanel;
     public GameObject Cat;
     //public GameObject Chicken;
-    private string name;
+    private new string name;
     [SerializeField]private bool isShowing;
 
     private enum REWARD
     {
         NONE = 0,
         CAT,
-        CHICKEN,
         BED,
+        CHICKEN,
         TUB,
-
+        CAR
     }
 
     private void Start()
@@ -42,7 +42,7 @@ public class ResultScript : MonoBehaviour
     {
         if (isShowing && name != " ")
         {
-            RewardPanel.transform.Find("Reward").transform.Find(name).transform.Rotate(new Vector3(0, 10f * Time.fixedDeltaTime, 0));
+            Camera.main.transform.Find("Reward").transform.Find(name).transform.Rotate(new Vector3(0, 10f * Time.fixedDeltaTime, 0));
         }
     }
 
@@ -66,6 +66,9 @@ public class ResultScript : MonoBehaviour
 
     public void EndGame()
     {
+        PlayerPrefs.SetInt("Score", 0);
+        PlayerPrefs.SetInt("Distance", 0);
+        PlayerPrefs.SetInt("TotalScore", 0);
         SceneManager.LoadScene("TitleScene");
     }
 
@@ -87,7 +90,7 @@ public class ResultScript : MonoBehaviour
         // 고양이 보상
         if (type == 1)
         {
-            GameObject reward = Instantiate(Cat, RewardPanel.transform.Find("Reward").transform) as GameObject;
+            GameObject reward = Instantiate(Cat, Camera.main.transform.Find("Reward").transform) as GameObject;
             reward.GetComponent<PlayerControl>().enabled = false;
             reward.GetComponent<Rigidbody>().useGravity = false;
             reward.GetComponent<AudioSource>().playOnAwake = true;
@@ -95,7 +98,7 @@ public class ResultScript : MonoBehaviour
         }
         //else if (type == 2)
         //{
-        //    GameObject reward = Instantiate(Chicken, RewardPanel.transform.Find("Reward").transform.position, Quaternion.identity) as GameObject;
+        //    GameObject reward = Instantiate(Chicken, Camera.main.transform.Find("Reward").transform.position, Quaternion.identity) as GameObject;
         //    reward.GetComponent<PlayerControl>().enabled = false;
         //    reward.GetComponent<Rigidbody>().useGravity = false;
         //    reward.GetComponent<AudioSource>().playOnAwake = true;

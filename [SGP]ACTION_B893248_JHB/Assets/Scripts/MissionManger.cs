@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 public class MissionManger : MonoBehaviour
 {
     private PlayerControl player = null;
-    private bool isPlayer = false;
 
     public bool m1 = false;
     public bool m2 = false;
@@ -29,10 +28,14 @@ public class MissionManger : MonoBehaviour
 
     public enum MISSION
     {
-        CAT = 0
+        BED = 0,
+        CAT = 1,
+        BATH,
+        CHICKEN,
+        CAR
     }
 
-    public MISSION MissionType;
+    private MISSION MissionType;
 
     private void Awake()
     {
@@ -59,9 +62,8 @@ public class MissionManger : MonoBehaviour
     void Update()
     {
         // 플레이어 받아오기
-        if(isPlayer==false && SceneManager.GetActiveScene().buildIndex == 1)
+        if(player == null && SceneManager.GetActiveScene().buildIndex == 1)
         {
-            isPlayer = true;
             this.player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>();
             CreateMission();
         }
@@ -99,9 +101,21 @@ public class MissionManger : MonoBehaviour
         if (PlayerPrefs.GetInt("Cat") == 0)
         {
             if (PlayerPrefs.GetInt("Tumbling3") >= 3)
-                m1 = true;
+            {
+                if(m1==false)
+                {
+                    m1 = true;
+                    PlayerPrefs.SetInt("Score", PlayerPrefs.GetInt("Score") + 500);
+                }
+            }
             if (PlayerPrefs.GetInt("Crushing3") >= 3)
-                m2 = true;
+            {
+                if (m2 == false)
+                {
+                    m2 = true;
+                    PlayerPrefs.SetInt("Score", PlayerPrefs.GetInt("Score") + 500);
+                }
+            }
             //if (PlayerPrefs.GetInt("Hopping1") >= 1)
             //    m3 = true;
 
@@ -113,5 +127,12 @@ public class MissionManger : MonoBehaviour
                 PlayerPrefs.SetInt("Clear", 1);
             }
         }
+    }
+
+    private void OnDisable()
+    {
+        m1 = false;
+        m2 = false;
+        m3 = false;
     }
 }
