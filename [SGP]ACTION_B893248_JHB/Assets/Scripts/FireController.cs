@@ -48,9 +48,9 @@ public class FireController : MonoBehaviour
         switch (this.level)
         {
             case LEVEL.LEVEL1:
-                SPEED_MAX = 8f;
-                SPEED_MIN = 7.5f;
-                this.current_speed = 7.5f;
+                SPEED_MAX = 7.5f;
+                SPEED_MIN = 7f;
+                this.current_speed = 7f;
                 break;
             case LEVEL.LEVEL2:
                 SPEED_MAX = 9f;
@@ -110,7 +110,7 @@ public class FireController : MonoBehaviour
     private void MovePosition()
     {
         // 플레이어와의 거리 계산
-        float yPos = player.transform.position.y + 50f;
+        float yPos = player.transform.position.y + 35f;
         float xPos;
         int distance = (int)Mathf.Abs(Vector3.Distance(this.transform.position, player.transform.position));
 
@@ -119,6 +119,9 @@ public class FireController : MonoBehaviour
 
         else
             xPos = this.transform.position.x + current_speed * Time.deltaTime;
+
+        if (xPos > player.transform.position.x)
+            xPos = player.transform.position.x+0.5f;
 
         Vector3 move = new Vector3(xPos, yPos, 0f);
         this.transform.position = move;

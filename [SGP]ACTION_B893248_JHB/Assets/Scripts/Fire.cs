@@ -30,9 +30,9 @@ public class Fire : MonoBehaviour
     {
         int distance = (int)Mathf.Abs(Vector3.Distance(this.transform.position, player.transform.position));
 
-        if (distance > 20)
+        if (distance > 30)
             return FireController.LEVEL.LEVEL1;
-        else if (distance > 10)
+        else if (distance > 20)
             return FireController.LEVEL.LEVEL2;
         else
             return FireController.LEVEL.LEVEL3;

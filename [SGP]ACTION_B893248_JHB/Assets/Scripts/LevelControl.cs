@@ -47,7 +47,7 @@ public class LevelControl : MonoBehaviour
     public CreationInfo current_block; // 지금 어떤 블록을 만들어야 하는가.
     public CreationInfo next_block; // 다음에 어떤 블록을 만들어야 하는가.
     public int block_count; // 생성한 블록의 총 수.
-    public int level;
+    public static int level;
     public bool isChanged;
 
     private static LevelControl instance;
@@ -63,7 +63,8 @@ public class LevelControl : MonoBehaviour
     private void Start()
     {
         block_count = 0;
-        level = 0;
+        LevelControl.level = 1;
+        Debug.Log("LEVEL: " + level);
         isChanged = false;
     }
 
@@ -71,9 +72,8 @@ public class LevelControl : MonoBehaviour
     {
         if (isChanged == false)
         {
-            Debug.Log("LEVEL UP!");
-            level++;
             isChanged = true;
+            LevelControl.level += 1;
         }
     }
 
@@ -102,22 +102,16 @@ public class LevelControl : MonoBehaviour
 
     private void UpdateLevel(ref CreationInfo current, CreationInfo previous)
     {
-        switch (level)
+        switch (LevelControl.level)
         {
             case 1:
-                Debug.Log("LV1");
                 SetLevel1(ref current, previous);
                 break;
             case 2:
-                Debug.Log("LV2");
                 SetLevel2(ref current, previous);
                 break;
             case 3:
-                Debug.Log("LV3");
                 SetLevel3(ref current, previous);
-                break;
-            default:
-                SetLevel1(ref current, previous);
                 break;
         }
     }
@@ -324,7 +318,7 @@ public class LevelControl : MonoBehaviour
 
                 break;
 
-            case Block.TYPE.OBSTACLE_F: // 이번 블록이 평지 장애물일 경우
+            case Block.TYPE.OBSTACLE_R: // 이번 블록이 평지 장애물일 경우
             case Block.TYPE.KEY:
             case Block.TYPE.BOX:
                 if (rand % 2 == 0)
@@ -352,7 +346,6 @@ public class LevelControl : MonoBehaviour
                 // 일정 확률로 장애물 오브젝트 등장
                 if (rand % 2 == 0)
                 {
-                    Debug.Log("OBS");
                     if (rand % 3 == 0)
                         current.block_type = Block.TYPE.OBSTACLE_R;     // 바위 생성.
                     else
@@ -395,7 +388,8 @@ public class LevelControl : MonoBehaviour
 
                 break;
 
-            case Block.TYPE.OBSTACLE_F: // 이번 블록이 평지 장애물일 경우
+            case Block.TYPE.OBSTACLE_R: // 이번 블록이 평지 장애물일 경우
+            case Block.TYPE.OBSTACLE_T: // 이번 블록이 평지 장애물일 경우
             case Block.TYPE.KEY:
             case Block.TYPE.BOX:
                 if (rand % 2 == 0)
@@ -423,7 +417,6 @@ public class LevelControl : MonoBehaviour
                 // 일정 확률로 장애물 오브젝트 등장
                 if (rand % 2 == 0)
                 {
-                    Debug.Log("OBS");
                     if (rand % 3 == 0)
                         current.block_type = Block.TYPE.OBSTACLE_R;     // 바위 생성.
                     else if(rand % 3== 1)
@@ -462,7 +455,7 @@ public class LevelControl : MonoBehaviour
                 else
                 {
                     current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 5; // 일반 평지는 15개 만든다.
+                    current.max_count = 5; // 일반 평지를 만든다.
                     current.height = previous.height; // 높이를 이전과 같게 한다.
                 }
 

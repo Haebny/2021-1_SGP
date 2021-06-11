@@ -8,8 +8,9 @@ public class PlayerControl : MonoBehaviour
 {
     // 점프에 필요한 전역변수 선언 먼저.
     public static float ACCELERATION = 10.0f; // 가속도.
-    public static float SPEED_MIN = 5.0f; // 속도의 최솟값.
+    public static float SPEED_MIN = 7.0f; // 속도의 최솟값.
     public static float SPEED_MAX = 10.0f; // 속도의 최댓값.
+    public static float JUMP_HEIGHT_MAX = 5.0f; // 점프 높이.
     public static float JUMP_KEY_RELEASE_REDUCE = 0.5f; // 점프 후의 감속도.
 
     // Player의 각종 상태를 나타내는 자료형 (*열거체)
@@ -119,6 +120,8 @@ public class PlayerControl : MonoBehaviour
     private new AudioSource audio;
     public AudioClip[] audioClips;
 
+    private Animator anim;
+
     private void Awake()
     {
         audioClips = new AudioClip[6];
@@ -158,6 +161,12 @@ public class PlayerControl : MonoBehaviour
         PlayerPrefs.SetInt("TotalScore", 0);
 
         rb = this.GetComponent<Rigidbody>();
+        anim = this.GetComponentInChildren<Animator>();
+
+        if(SceneManager.GetActiveScene().buildIndex == 0)
+           anim.SetBool("IsPlaying", false);
+        else
+            anim.SetBool("IsPlaying", true);
     }
 
     void Update()
@@ -180,7 +189,11 @@ public class PlayerControl : MonoBehaviour
             SceneManager.LoadScene("ResultScene");
         }
 
-        if((int)meter == 500 && LevelControl.GetInstance().isChanged == false && levelUp == false)
+        // 스킬 없으면 이펙트 끄기
+        if (skill < 1)
+            GameObject.Find("UI").transform.Find("Dash_PS").gameObject.SetActive(false);
+
+        if ((int)meter == 500 && LevelControl.GetInstance().isChanged == false && levelUp == false)
         {
             levelUp = true;
             Level = LEVEL.LV2;
@@ -285,7 +298,6 @@ public class PlayerControl : MonoBehaviour
             // UI를 제외한 화면 터치.
             if (EventSystem.current.IsPointerOverGameObject() == false)
             {
-                rb.AddForce(Vector3.up * Time.deltaTime * 1000, ForceMode.Impulse);
                 // 점프하면 jump 효과음
                 if (!audio.isPlaying)
                 {
@@ -341,6 +353,9 @@ public class PlayerControl : MonoBehaviour
             { 
                 // 갱신된 '현재 상태'가.
                 case STEP.JUMP: // '점프'일 때.
+                    // 최고 도달점 높이(JUMP_HEIGHT_MAX)까지 점프할 수 있는 속도를 계산.
+                    velocity.y = Mathf.Sqrt(2.0f * 9.8f * PlayerControl.JUMP_HEIGHT_MAX);
+                    velocity.x = rb.velocity.x;
                     // '버튼이 떨어졌음을 나타내는 플래그'를 클리어한다.
                     this.is_key_released = false;
                     break;
@@ -359,7 +374,7 @@ public class PlayerControl : MonoBehaviour
                     return;
                 }
                 // 속도를 높인다.
-                rb.AddForce(Vector3.right * 1000 * Time.deltaTime, ForceMode.Force);
+                velocity.x += PlayerControl.ACCELERATION * Time.deltaTime;
 
                 // 계산으로 구한 속도가 설정해야 할 속도를 넘으면.
                 if (Mathf.Abs(velocity.x) > SPEED_MAX && !is_dashing)
@@ -367,7 +382,6 @@ public class PlayerControl : MonoBehaviour
                     // 넘지 않게 조정한다.
                     velocity.x *= this.current_speed / Mathf.Abs(velocity.x);
                 }
-
                 break;
             case STEP.JUMP: // 점프 중일 때.
                 do
@@ -387,11 +401,12 @@ public class PlayerControl : MonoBehaviour
                     {
                         break; // 아무것도 하지 않고 루프를 빠져나간다.
                     }
-                    //// 버튼이 떨어져 있고 상승 중이라면 감속 시작.
-                    //// 점프의 상승은 여기서 끝.
+                    // 버튼이 떨어져 있고 상승 중이라면 감속 시작.
+                    // 점프의 상승은 여기서 끝.
                     //velocity.y *= JUMP_KEY_RELEASE_REDUCE;
                     this.is_key_released = true;
                 } while (false);
+                velocity.x = rb.velocity.x;
                 break;
 
             case STEP.MISS:
@@ -405,13 +420,18 @@ public class PlayerControl : MonoBehaviour
         }
         // Rigidbody의 속도를 위에서 구한 속도로 갱신.
         // (이 행은 상태에 관계없이 매번 실행된다).
+        if (velocity.x < SPEED_MIN)
+        {
+            Debug.Log("ACCELERATION");
+            velocity.x += PlayerControl.ACCELERATION * SPEED_MIN * Time.deltaTime;
+        }
         this.GetComponent<Rigidbody>().velocity = velocity;
     }
 
     private void CheckLanded() // 착지했는지 조사
     {
         this.is_landed = false; // 일단 false로 설정.
-
+        velocity.x = rb.velocity.x;
         do
         {
             Vector3 s = this.transform.position; // Player의 현재 위치.
@@ -473,8 +493,6 @@ public class PlayerControl : MonoBehaviour
     // 돌진 스킬 처리
     IEnumerator Dash(int sec)
     {
-        Debug.Log("DASH !!!");
-
         // 돌진 시 run 효과음
         if (!audio.isPlaying)
         {
@@ -482,11 +500,16 @@ public class PlayerControl : MonoBehaviour
             audio.volume = 1.0f;
             audio.Play();
         }
+        ParticleSystem particle = this.transform.GetChild(2).GetComponent<ParticleSystem>();
         is_dashing = true;
 
         // 스킬 사용
-        this.GetComponent<Rigidbody>().AddForce(Vector3.right * 8f * Time.deltaTime, ForceMode.Impulse);
-        yield return new WaitForSeconds(sec);
+        if (particle.isPlaying)
+            particle.Stop();
+        particle.Play();
+        rb.AddForce(Vector3.right * Time.deltaTime * 700f);
+        yield return new WaitForSeconds(sec + 0.5f);
+        particle.Stop();
 
         is_dashing = false;
         is_hopping = false;
@@ -554,6 +577,7 @@ public class PlayerControl : MonoBehaviour
             Destroy(other.gameObject);  //상자가 열리는 애니메이션으로 대체 시 트리거로 옮길 것
             score += 100;
             skill++;
+            GameObject.Find("UI").transform.Find("Dash_PS").gameObject.SetActive(true);
         }
     }
     private void OnTriggerStay(Collider other)
@@ -577,6 +601,7 @@ public class PlayerControl : MonoBehaviour
             if(is_dashing)
             {
                 is_crushing = true;
+                is_hopping = false;
                 Destroy(collision.gameObject);
                 this.GetComponent<Rigidbody>().velocity = velocity;
                 //StartCoroutine("ScoreRecord", "CRUSH !!! +200");  // 획득 점수의 종류 출력
@@ -616,6 +641,8 @@ public class PlayerControl : MonoBehaviour
         if(collision.gameObject.CompareTag("Ground"))
         {
             is_grounded = true;
+
+            anim.SetBool("IsJumping", false);
 
             // 공중제비를 성공하고 착지
             if (is_perfect)

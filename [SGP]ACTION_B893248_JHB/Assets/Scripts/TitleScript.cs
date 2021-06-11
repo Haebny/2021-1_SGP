@@ -8,6 +8,7 @@ public class TitleScript : MonoBehaviour
 {
     private void Start()
     {
+        Screen.SetResolution(Screen.width, Screen.width * 16 / 9,  false);
         SetBestScore();
     }
 
@@ -39,7 +40,6 @@ public class TitleScript : MonoBehaviour
     public void DeleteData()
     {
         PlayerPrefs.DeleteAll();
-        GameObject.Find("Info Image").gameObject.SetActive(true);
     }
 
 

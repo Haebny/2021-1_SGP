@@ -1,6 +1,8 @@
 ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
+    - AdjustWindow
+    - AudioMaster
     - BlockControl
     - BlockCreator
     - ButtonController
@@ -18,6 +20,7 @@ ScriptsOnlyBuild:
     - ResultScript
     - TitleScript
     - UIController
+    - UnityEngine.UI.Extensions.UIParticleSystem
     Unity.Rider.Editor.dll:
     - Packages.Rider.Editor.UnitTesting.CallbackData
     Unity.TextMeshPro.dll:
@@ -29,8 +32,10 @@ ScriptsOnlyBuild:
     UnityEditor.Graphs.dll:
     - UnityEditor.Graphs.AnimationBlendTree.Graph
     - UnityEditor.Graphs.AnimationBlendTree.GraphGUI
+    - UnityEditor.Graphs.AnimationStateMachine.AnyStateNode
     - UnityEditor.Graphs.AnimationStateMachine.Graph
     - UnityEditor.Graphs.AnimationStateMachine.GraphGUI
+    - UnityEditor.Graphs.AnimationStateMachine.StateNode
     - UnityEditor.Graphs.AnimatorControllerTool
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
@@ -43,6 +48,7 @@ ScriptsOnlyBuild:
     - UnityEngine.UI.CanvasScaler
     - UnityEngine.UI.GraphicRaycaster
     - UnityEngine.UI.Image
+    - UnityEngine.UI.Slider
   sceneClasses:
     Assets/Scenes/MainScene.unity:
     - Class: 1
@@ -67,6 +73,8 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 65
       Script: {instanceID: 0}
+    - Class: 74
+      Script: {instanceID: 0}
     - Class: 81
       Script: {instanceID: 0}
     - Class: 82
@@ -74,6 +82,10 @@ ScriptsOnlyBuild:
     - Class: 83
       Script: {instanceID: 0}
     - Class: 89
+      Script: {instanceID: 0}
+    - Class: 91
+      Script: {instanceID: 0}
+    - Class: 95
       Script: {instanceID: 0}
     - Class: 104
       Script: {instanceID: 0}
@@ -116,9 +128,15 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 12838}
     - Class: 114
-      Script: {instanceID: 13104}
+      Script: {instanceID: 12852}
     - Class: 114
-      Script: {instanceID: 13122}
+      Script: {instanceID: 13106}
+    - Class: 114
+      Script: {instanceID: 13124}
+    - Class: 114
+      Script: {instanceID: 13138}
+    - Class: 114
+      Script: {instanceID: 40926}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 134
@@ -164,6 +182,8 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 54
       Script: {instanceID: 0}
+    - Class: 74
+      Script: {instanceID: 0}
     - Class: 81
       Script: {instanceID: 0}
     - Class: 82
@@ -171,6 +191,10 @@ ScriptsOnlyBuild:
     - Class: 83
       Script: {instanceID: 0}
     - Class: 89
+      Script: {instanceID: 0}
+    - Class: 91
+      Script: {instanceID: 0}
+    - Class: 95
       Script: {instanceID: 0}
     - Class: 104
       Script: {instanceID: 0}
@@ -195,7 +219,7 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 12750}
     - Class: 114
-      Script: {instanceID: 13104}
+      Script: {instanceID: 13106}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 135
@@ -237,6 +261,8 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 65
       Script: {instanceID: 0}
+    - Class: 74
+      Script: {instanceID: 0}
     - Class: 81
       Script: {instanceID: 0}
     - Class: 82
@@ -244,6 +270,10 @@ ScriptsOnlyBuild:
     - Class: 83
       Script: {instanceID: 0}
     - Class: 89
+      Script: {instanceID: 0}
+    - Class: 91
+      Script: {instanceID: 0}
+    - Class: 95
       Script: {instanceID: 0}
     - Class: 102
       Script: {instanceID: 0}
@@ -280,9 +310,15 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 12818}
     - Class: 114
-      Script: {instanceID: 12904}
+      Script: {instanceID: 12852}
     - Class: 114
-      Script: {instanceID: 13104}
+      Script: {instanceID: 12906}
+    - Class: 114
+      Script: {instanceID: 13106}
+    - Class: 114
+      Script: {instanceID: 13138}
+    - Class: 114
+      Script: {instanceID: 91062}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -708,7 +744,7 @@ ScriptsOnlyBuild:
     className: BeforeAfterTestCommandState
   - hash:
       serializedVersion: 2
-      Hash: 304c44030eea6325ea346602ab8e6418
+      Hash: 81ac6ce9e90ca112f634b17607ccb6e1
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: MissionManger
@@ -718,6 +754,12 @@ ScriptsOnlyBuild:
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: PlayerSounds
+  - hash:
+      serializedVersion: 2
+      Hash: 893017411b420d236d9b04abf6e57509
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: AudioMaster
   - hash:
       serializedVersion: 2
       Hash: c3d3430df9e3ea95e3e3d587961390fb
@@ -810,7 +852,7 @@ ScriptsOnlyBuild:
     className: SignalEmitter
   - hash:
       serializedVersion: 2
-      Hash: 66cfaef20cd6aa8ea88d412b8f548952
+      Hash: 85ee279d04874f1acb8e7d8c4dd71ea2
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: LevelControl
@@ -832,11 +874,21 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: PlayableTrack
+  - hash:
+      serializedVersion: 2
+      Hash: ac0cf4e5fdb8d85aadd9655b753118c6
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: UnityEngine.UI.Extensions
+    className: UIParticleSystem
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: AdjustWindow
   platform: 5
   scenePathNames:
   - Assets/Scenes/TitleScene.unity
   - Assets/Scenes/MainScene.unity
   - Assets/Scenes/ResultScene.unity
-  playerPath: "D:/OneDrive - \uD64D\uC775\uB300\uD559\uAD50/4\uD559\uB144/[\uAE40\uC608\uC9C4
-    \uAD50\uC218\uB2D8]\uAE30\uB2A5\uC131\uAC8C\uC784\uD504\uB85C\uADF8\uB798\uBC0D/\uACFC\uC81C/[B893248\uC815\uD574\uBE48]ForestDash_edited/Forest
-    Dash.exe"
+  playerPath: "C:/Users/bean9/OneDrive/\uBC14\uD0D5 \uD654\uBA74/Test/Forest Dash.exe"
