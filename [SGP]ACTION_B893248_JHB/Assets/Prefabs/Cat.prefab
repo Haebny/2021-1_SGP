@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1331297741207619082}
   - component: {fileID: 6095835207611977683}
   - component: {fileID: 8298137439885774407}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cat
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -119,14 +119,18 @@ MonoBehaviour:
   is_collided: 0
   is_key_released: 0
   is_dashing: 0
+  IsMounting: 0
   current_speed: 0
   level_control: {fileID: 0}
+  click_timer: 1
+  audio: {fileID: 0}
   audioClips:
   - {fileID: 8300000, guid: 375a32179e8a8f5469bf735c90d0b454, type: 3}
   - {fileID: 8300000, guid: 5385fd66bc57fb54997697134c134a7b, type: 3}
   - {fileID: 8300000, guid: 3b2ce34ac8d61d24db9d1b0f1f02ecc2, type: 3}
   - {fileID: 8300000, guid: 919a37cb2d1f46b46b9f540f4d7f2968, type: 3}
   - {fileID: 8300000, guid: 85a09e830e8015d489832778d99a45fb, type: 3}
+  anim: {fileID: 0}
 --- !u!82 &6095835207611977683
 AudioSource:
   m_ObjectHideFlags: 0
@@ -138,8 +142,8 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 375a32179e8a8f5469bf735c90d0b454, type: 3}
-  m_PlayOnAwake: 0
-  m_Volume: 1
+  m_PlayOnAwake: 1
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -249,7 +253,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5240630463191824228}
   - component: {fileID: 215490058567077102}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Effect Sound
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -373,9 +377,41 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1331297741207619078}
     m_Modifications:
+    - target: {fileID: 1046142806278792, guid: aa2d47f95b34fbe4d9cbe095f13585b5, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1076173012780178, guid: aa2d47f95b34fbe4d9cbe095f13585b5, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1087206765284822, guid: aa2d47f95b34fbe4d9cbe095f13585b5, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1585349779547952, guid: aa2d47f95b34fbe4d9cbe095f13585b5, type: 3}
       propertyPath: m_Name
       value: Model
+      objectReference: {fileID: 0}
+    - target: {fileID: 1585349779547952, guid: aa2d47f95b34fbe4d9cbe095f13585b5, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686542506629698, guid: aa2d47f95b34fbe4d9cbe095f13585b5, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1708535168009248, guid: aa2d47f95b34fbe4d9cbe095f13585b5, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1710970146385012, guid: aa2d47f95b34fbe4d9cbe095f13585b5, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1850483095460396, guid: aa2d47f95b34fbe4d9cbe095f13585b5, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4333491988720984, guid: aa2d47f95b34fbe4d9cbe095f13585b5, type: 3}
       propertyPath: m_RootOrder

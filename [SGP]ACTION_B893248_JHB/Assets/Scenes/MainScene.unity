@@ -178,7 +178,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: x 1
+  m_text: x 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 661b3df93f9a2ca4aab357cbe0763d5e, type: 2}
   m_sharedMaterial: {fileID: -19829074606374887, guid: 661b3df93f9a2ca4aab357cbe0763d5e,
@@ -1862,7 +1862,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 120
   m_CollisionDetection: 0
 --- !u!1 &480080885
 GameObject:
@@ -2112,6 +2112,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Dog: {fileID: 1032141068693561818, guid: 030ec1033907aa5479b392ac24fd835b, type: 3}
   Cat: {fileID: 1331297741207619083, guid: a2bbfb5e865e1cc4fb490ce84117f1a5, type: 3}
+  Chicken: {fileID: 1969419073538870, guid: aa3784adb6428184e991be2d60ee0cb2, type: 3}
+  Bed: {fileID: 5730398880540663889, guid: 100352694ee33494693b5c30654277e4, type: 3}
+  Table: {fileID: 8262586723173237290, guid: 08161c7bc36b846119884238e8c68920, type: 3}
+  Car: {fileID: 6013273106906197892, guid: c13bbe02c389a3e4f8cca71d14c83be5, type: 3}
   Dash: {fileID: 8045324282562312068, guid: 318c4374503b26f4d8f89ac64b3e1ece, type: 3}
 --- !u!4 &580443762
 Transform:

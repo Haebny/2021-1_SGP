@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems; // UI클릭 시 터치 이벤트 발생 방지
-using UnityEngine.SceneManagement; // UI클릭 시 터치 이벤트 발생 방지
+using UnityEngine.SceneManagement;
 
 public class PlayerControl : MonoBehaviour
 {
-    // 점프에 필요한 전역변수 선언 먼저.
+    #region Variables
+    // 점프에 필요한 전역변수 선언
     public static float ACCELERATION = 10.0f; // 가속도.
     public static float SPEED_MIN = 7.0f; // 속도의 최솟값.
     public static float SPEED_MAX = 10.0f; // 속도의 최댓값.
@@ -24,6 +25,10 @@ public class PlayerControl : MonoBehaviour
         NUM, // 상태가 몇 종류 있는지 보여준다(=3).
     };
 
+    public STEP step = STEP.NONE; // Player의 현재 상태.
+    public STEP next_step = STEP.NONE; // Player의 다음 상태.
+    public float step_timer = 0.0f; // 경과 시간.
+
     // 플레이어 캐릭터 타입
     public enum ANIMAL_TYPE
     {
@@ -32,11 +37,7 @@ public class PlayerControl : MonoBehaviour
         CHICKEN
     }
     private ANIMAL_TYPE animalType;
-    public ANIMAL_TYPE AnimalType {  get { return animalType; } }
-
-    public STEP step = STEP.NONE; // Player의 현재 상태.
-    public STEP next_step = STEP.NONE; // Player의 다음 상태.
-    public float step_timer = 0.0f; // 경과 시간.
+    public ANIMAL_TYPE AnimalType { get { return animalType; } }
 
     // 돌진이 발동한 경로를 나타내는 자료형 
     public enum DASH_TYPE
@@ -72,6 +73,7 @@ public class PlayerControl : MonoBehaviour
     public bool Is_key_released { get { return is_key_released; } }
 
     [SerializeField]private bool is_dashing = false; // 돌진을 사용하는 중인가.
+    public bool Is_dashing    { get { return is_dashing; } }
 
     private bool is_crushing = false; // 오브젝트를 부쉈는가
     public bool Is_crushing
@@ -79,6 +81,8 @@ public class PlayerControl : MonoBehaviour
         get { return is_crushing; }
         set { is_crushing = value; }
     }
+
+    public bool IsMounting;  // 탑승물을 탑승한 상태인가
 
     private bool levelUp = false;
     public bool LevelUp {
@@ -102,25 +106,35 @@ public class PlayerControl : MonoBehaviour
     public LevelControl level_control = null; // LevelControl이 저장됨.
 
     private int click_count = 0;
-    private float click_timer = 1.0f; // 버튼이 눌린 후의 시간
+    public float click_timer = 1.0f; // 버튼이 눌린 후의 시간
     private float CLICK_GRACE_TIME = 0.5f; // 점프하고 싶은 의사를 받아들일 시간
     private int key = 0;    // 획득한 열쇠 아이템의 수
-    public int Key { get { return key; } }
+    public int Key {
+        get { return key; }
+        set { key = value; }
+    }
     private int skill = 0;  // 쓸 수 있는 돌진 횟수
-    public int Skill { get { return skill; } }
+    public int Skill {
+        get { return skill; }
+        set { skill = value; }
+    }
 
     private int score = 0;
-    public int Score { get { return score; } }
+    public int Score {
+        get { return score; }
+        set { score = value; }
+    }
     private float meter = 0;
     public float Meter { get { return meter; } }
     private Vector3 startPos;
     private Vector3 velocity;
     private Rigidbody rb;
 
-    private new AudioSource audio;
+    public new AudioSource audio;
     public AudioClip[] audioClips;
 
-    private Animator anim;
+    public Animator anim;
+#endregion
 
     private void Awake()
     {
@@ -138,10 +152,28 @@ public class PlayerControl : MonoBehaviour
             else
                 animalType = ANIMAL_TYPE.DOG;
         }
+
+        // 탑승물을 지정 여부
+        // 탑승물을 얻지 못하였거나 선택하지 않았을 경우
+        if (PlayerPrefs.GetInt("Bed") == 0 || PlayerPrefs.GetString("Mount") == "None")
+        {
+            IsMounting = false;
+            return;
+        }
+
+        //탑승물을 선택한 경우
+        else if (SceneManager.GetActiveScene().buildIndex == 1)
+        {
+            IsMounting = true;
+            this.transform.localPosition = new Vector3(0f, 1.5f, 0f);
+        }
     }
 
     void Start()
     {
+        // 타이틀 화면에서 지정한 동물 확인
+        if (PlayerPrefs.GetString("Animal") == null)
+            PlayerPrefs.SetString("Animal", "Dog");
         string name = PlayerPrefs.GetString("Animal") + "(Clone)";
 
         if (this.name != name)
@@ -161,16 +193,45 @@ public class PlayerControl : MonoBehaviour
         PlayerPrefs.SetInt("TotalScore", 0);
 
         rb = this.GetComponent<Rigidbody>();
+        //if (IsMounting)
+        //    rb.useGravity = false;
         anim = this.GetComponentInChildren<Animator>();
 
+        // 애니메이션 세팅(메인이어야 달리는 애니메이션)
         if(SceneManager.GetActiveScene().buildIndex == 0)
            anim.SetBool("IsPlaying", false);
         else
             anim.SetBool("IsPlaying", true);
+        
+        // 스킬 없으면 이펙트 끄기
+        if (skill < 1)
+            GameObject.Find("UI").transform.Find("Dash_PS").gameObject.SetActive(false);
     }
 
     void Update()
     {
+        // 탑승물을 타고 있다면
+        if (IsMounting)
+        {
+            this.transform.localPosition = new Vector3(0f, 1.5f, 0f);
+            if (this.transform.name == "Chicken(Clone)")
+            {
+                this.transform.localPosition = new Vector3(1.5f, 3.1f, 0f);
+                this.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f));
+            }
+            anim.SetBool("IsPlaying", false);   // IDLE 상태로 유지
+            return;   // Mount에서 제어
+        }
+        else
+        {
+            if (this.transform.name == "Chicken(Clone)")
+            {
+                this.transform.Find("Model").localPosition = new Vector3(2f, 2f, 0f);
+                //this.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f));
+            }
+            anim.SetBool("IsPlaying", true);   // IDLE 상태로 유지
+        }
+
         velocity = this.GetComponent<Rigidbody>().velocity; // 속도를 설정.
         this.CheckLanded(); // 착지 상태인지 체크.
         this.CheckDistacne(); // 플레이어의 이동 거리를 계산한다.
@@ -222,6 +283,7 @@ public class PlayerControl : MonoBehaviour
         {
             if (is_grounded==false)
             {
+                anim.SetBool("IsJumping", true);
                 transform.Rotate(new Vector3(0, 0, Time.deltaTime*100f));
             }
         }
@@ -235,6 +297,7 @@ public class PlayerControl : MonoBehaviour
         if (is_landed && !is_collided)
         {
             this.transform.rotation = Quaternion.Euler(0, 0, 0);
+            anim.SetBool("IsJumping", false);
         }
 
         // 넘어짐
@@ -273,14 +336,6 @@ public class PlayerControl : MonoBehaviour
             }
 
             return;
-        }
-
-        // 텀블링 조작
-        switch (this.step)
-        {
-            case STEP.RUN:
-            case STEP.JUMP:
-                break;
         }
 
         this.step_timer += Time.deltaTime; // 경과 시간을 진행한다.
@@ -329,6 +384,7 @@ public class PlayerControl : MonoBehaviour
                         if (this.is_landed)
                         {
                             // 착지했다면.
+                            anim.SetBool("IsJumping", false);
                             this.click_timer = -1.0f; // 버튼이 눌려있지 않음을 나타내는 -1.0f로.
                             this.next_step = STEP.JUMP; // 점프 상태로 한다.
                         }
@@ -338,6 +394,7 @@ public class PlayerControl : MonoBehaviour
                     if (this.is_landed)
                     {
                         // 점프 중이고 착지했다면 다음 상태를 주행 중으로 변경.
+                        anim.SetBool("IsJumping", false);
                         this.next_step = STEP.RUN;
                     }
                     break;
@@ -422,7 +479,6 @@ public class PlayerControl : MonoBehaviour
         // (이 행은 상태에 관계없이 매번 실행된다).
         if (velocity.x < SPEED_MIN)
         {
-            Debug.Log("ACCELERATION");
             velocity.x += PlayerControl.ACCELERATION * SPEED_MIN * Time.deltaTime;
         }
         this.GetComponent<Rigidbody>().velocity = velocity;
@@ -451,6 +507,7 @@ public class PlayerControl : MonoBehaviour
             }
             // s부터 e 사이에 뭔가 있고 JUMP 직후가 아닐 때만 아래가 실행.
             this.is_landed = true;
+            anim.SetBool("IsJumping", false);
 
         } while (false);
         // 루프의 탈출구.
@@ -500,6 +557,8 @@ public class PlayerControl : MonoBehaviour
             audio.volume = 1.0f;
             audio.Play();
         }
+
+        // 대시 파티클
         ParticleSystem particle = this.transform.GetChild(2).GetComponent<ParticleSystem>();
         is_dashing = true;
 
@@ -507,7 +566,7 @@ public class PlayerControl : MonoBehaviour
         if (particle.isPlaying)
             particle.Stop();
         particle.Play();
-        rb.AddForce(Vector3.right * Time.deltaTime * 700f);
+        rb.AddForce(Vector3.right * Time.deltaTime * 700f * sec);
         yield return new WaitForSeconds(sec + 0.5f);
         particle.Stop();
 
@@ -521,6 +580,16 @@ public class PlayerControl : MonoBehaviour
         // 장애물을 스쳤으면 점수를 얻고 돌진효과
         if (other.CompareTag("Obstacle"))
         {
+            if(is_dashing)
+            {
+                is_crushing = true;
+                is_hopping = false;
+                Destroy(other.gameObject);
+                this.GetComponent<Rigidbody>().velocity = velocity;
+                Debug.Log("CRUSH !!! (+200)");
+                score += (int)GameRoot.SCORE_TYPE.DESTROY;  // 점수 획득
+                return;
+            }
             Debug.Log("HOPPING !!! (+400)");
             is_hopping = true;
             score += (int)GameRoot.SCORE_TYPE.HOP;
@@ -572,20 +641,11 @@ public class PlayerControl : MonoBehaviour
             audio.Play();
 
             Debug.Log("BOX OPEN !!! (+100)");
-            StopCoroutine("ScoreRecord");
-            StartCoroutine("ScoreRecord", "BOX OPEN !!! +100");
+            //StopCoroutine("ScoreRecord");
             Destroy(other.gameObject);  //상자가 열리는 애니메이션으로 대체 시 트리거로 옮길 것
             score += 100;
             skill++;
             GameObject.Find("UI").transform.Find("Dash_PS").gameObject.SetActive(true);
-        }
-    }
-    private void OnTriggerStay(Collider other)
-    {
-        // 장애물을 스쳤으면 점수를 얻고 돌진효과
-        if (other.CompareTag("Obstacle"))
-        {
-            is_hopping = false;
         }
     }
 
@@ -594,21 +654,20 @@ public class PlayerControl : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Obstacle"))
         {
-            if (is_hopping)
-                return;
-
             // 돌진 상태로 충돌 시 장애물은 파괴되고 점수를 획득
-            if(is_dashing)
+            if (is_dashing)
             {
                 is_crushing = true;
                 is_hopping = false;
                 Destroy(collision.gameObject);
                 this.GetComponent<Rigidbody>().velocity = velocity;
-                //StartCoroutine("ScoreRecord", "CRUSH !!! +200");  // 획득 점수의 종류 출력
                 Debug.Log("CRUSH !!! (+200)");
                 score += (int)GameRoot.SCORE_TYPE.DESTROY;  // 점수 획득
                 return;
             }
+
+            if (is_hopping)
+                return;
 
             // 넘어짐!!
             is_collided = true;  // 충돌
@@ -632,6 +691,11 @@ public class PlayerControl : MonoBehaviour
             this.GetComponent<Rigidbody>().velocity = Vector3.zero;
         }
 
+        if(collision.gameObject.CompareTag("Ground"))
+        {
+            is_grounded = true;
+        }
+
         else
             return;
     }
@@ -642,8 +706,6 @@ public class PlayerControl : MonoBehaviour
         {
             is_grounded = true;
 
-            anim.SetBool("IsJumping", false);
-
             // 공중제비를 성공하고 착지
             if (is_perfect)
             {
@@ -652,6 +714,37 @@ public class PlayerControl : MonoBehaviour
                 UsingDash(DASH_TYPE.HOPPING);
             }
             is_tumbling = false;
+        }
+
+        if (collision.gameObject.CompareTag("Obstacle"))
+        {
+            // 돌진 상태로 충돌 시 장애물은 파괴되고 점수를 획득
+            if (is_dashing)
+            {
+                is_crushing = true;
+                is_hopping = false;
+                Destroy(collision.gameObject);
+                this.GetComponent<Rigidbody>().velocity = velocity;
+                Debug.Log("CRUSH !!! (+200)");
+                score += (int)GameRoot.SCORE_TYPE.DESTROY;  // 점수 획득
+                return;
+            }
+
+            if (is_hopping)
+                return;
+
+            // 넘어짐!!
+            is_collided = true;  // 충돌
+            setState = false;
+            Destroy(collision.gameObject);
+
+            // falldown 효과음
+            audio.clip = audioClips[3];
+            audio.volume = 0.7f;
+            audio.Play();
+
+            AudioSource crush = transform.GetChild(1).GetComponent<AudioSource>();
+            crush.Play();
         }
     }
 
@@ -668,23 +761,22 @@ public class PlayerControl : MonoBehaviour
         meter = Vector3.Distance(startPos, this.transform.position);
     }
 
-    IEnumerator ScoreRecord(string text)
-    {
+    //IEnumerator ScoreRecord(string text)
+    //{
 
-        yield return new WaitForSeconds(2f);
-    }
+    //    yield return new WaitForSeconds(2f);
+    //}
 
     IEnumerator TumblingTimer()
     {
         float timer = 0;
-        while (timer < 3.0)
+        while (timer < 2.7)
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSecondsRealtime(0.1f);
             timer += 0.1f;
         }
 
         is_perfect = true;
         is_tumbling = false;
-
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class ButtonController : MonoBehaviour
 {
@@ -10,18 +11,24 @@ public class ButtonController : MonoBehaviour
 
     private void Awake()
     {
+        if (this.transform.name == "Start Button" || this.transform.name == "Quit Button")
+            return;
         Current = 0;
         model = this.transform.parent.Find("HTP1").gameObject;
     }
 
     private void Start()
     {
+        if (this.transform.name == "Start Button" || this.transform.name == "Quit Button")
+            return;
         Time.timeScale = 1.0f;
         StartCoroutine(ChangeIcon());
     }
 
     void OnEnable()
     {
+        if (this.transform.name == "Start Button" || this.transform.name == "Quit Button")
+            return;
         if (ButtonController.Current == 2 || ButtonController.Current == 3)
             return;
 
@@ -30,6 +37,8 @@ public class ButtonController : MonoBehaviour
 
     void OnDisable()
     {
+        if (this.transform.name == "Start Button" || this.transform.name == "Quit Button")
+            return;
         if (ButtonController.Current == 2 || ButtonController.Current == 3)
             return;
 
@@ -118,18 +127,28 @@ public class ButtonController : MonoBehaviour
             if (i % 2 == 0)
             {
                 image.sprite = hand;
-                yield return new WaitForSeconds(1.0f);
+                yield return new WaitForSecondsRealtime(1.0f);
             }
             else
             {
                 image.sprite = change;
                 if(isTouch)
-                    yield return new WaitForSeconds(0.5f);
+                    yield return new WaitForSecondsRealtime(0.5f);
                 else
-                    yield return new WaitForSeconds(1.5f);
+                    yield return new WaitForSecondsRealtime(1.5f);
             }
 
             i++;
         }
+    }
+
+    public void GameStart()
+    {
+        SceneManager.LoadScene("MainScene");
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }

@@ -51,11 +51,6 @@ public class UIController : MonoBehaviour
             levelControl.LevelUp();
             player.LevelUp = false;
         }
-
-        //if (Input.GetKeyDown(KeyCode.Keypad4))
-        //    PlayerPrefs.SetInt("Cat", 0);
-        //if (Input.GetKeyDown(KeyCode.Keypad5))
-        //    PlayerPrefs.SetInt("Chicken", 0);
     }
 
     // 일시정지 기능 메소드
@@ -150,11 +145,6 @@ public class UIController : MonoBehaviour
         player.UsingDash(PlayerControl.DASH_TYPE.SKILL);
     }
 
-    //public void GoToTitle()
-    //{
-    //    SceneManager.LoadScene("TitleScene");
-    //}
-
     public void GoToEnd()
     {
         SceneManager.LoadScene("ResultScene");
@@ -164,17 +154,17 @@ public class UIController : MonoBehaviour
     {
         int count = 0;
 
-        // 고양이를 보유하고 있지 않을 때
-        if (PlayerPrefs.GetInt("Cat") == 0)
+        // 침대를 보유하고 있지 않을 때
+        if (PlayerPrefs.GetInt("Bed") == 0)
         {
             //첫번째 미션
-            count = PlayerPrefs.GetInt("Tumbling3");
+            count = PlayerPrefs.GetInt("Tumbling");
 
             if (player.Is_perfect == true)
             {
                 player.Is_perfect = false;
-                PlayerPrefs.SetInt("Tumbling3", count + 1);
-                count = PlayerPrefs.GetInt("Tumbling3");
+                PlayerPrefs.SetInt("Tumbling", count + 1);
+                count = PlayerPrefs.GetInt("Tumbling");
             }
             Text = transform.Find("Mission Panel").transform.GetChild(0).GetComponent<TextMeshProUGUI>();
             if (count >= 3) // 성공 시 녹색으로 표시
@@ -187,13 +177,54 @@ public class UIController : MonoBehaviour
 
 
             //두번째 미션
-            count = PlayerPrefs.GetInt("Crushing3");
+            count = PlayerPrefs.GetInt("Crushing");
 
             if (player.Is_crushing == true)
             {
                 player.Is_crushing = false;
-                PlayerPrefs.SetInt("Crushing3", count + 1);
-                count = PlayerPrefs.GetInt("Crushing3");
+                PlayerPrefs.SetInt("Crushing", count + 1);
+                count = PlayerPrefs.GetInt("Crushing");
+            }
+            Text = transform.Find("Mission Panel").transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            if (count >= 1) // 성공 시 녹색으로 표시
+            {
+                Text.color = Color.green;
+                count = 1;
+            }
+
+            Text.text = "- 장애물 파괴하기 (" + count.ToString() + "/1)";
+        }
+
+        // 고양이를 보유하고 있지 않을 때
+        else if (PlayerPrefs.GetInt("Cat") == 0)
+        {
+            //첫번째 미션
+            count = PlayerPrefs.GetInt("Tumbling");
+
+            if (player.Is_perfect == true)
+            {
+                player.Is_perfect = false;
+                PlayerPrefs.SetInt("Tumbling", count + 1);
+                count = PlayerPrefs.GetInt("Tumbling");
+            }
+            Text = transform.Find("Mission Panel").transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            if (count >= 3) // 성공 시 녹색으로 표시
+            {
+                Text.color = Color.green;
+                count = 3;
+            }
+
+            Text.text = "- 텀블링 성공하기 (" + count.ToString() + "/3)";
+
+
+            //두번째 미션
+            count = PlayerPrefs.GetInt("Crushing");
+
+            if (player.Is_crushing == true)
+            {
+                player.Is_crushing = false;
+                PlayerPrefs.SetInt("Crushing", count + 1);
+                count = PlayerPrefs.GetInt("Crushing");
             }
             Text = transform.Find("Mission Panel").transform.GetChild(1).GetComponent<TextMeshProUGUI>();
             if (count >= 3) // 성공 시 녹색으로 표시
@@ -203,23 +234,186 @@ public class UIController : MonoBehaviour
             }
 
             Text.text = "- 장애물 파괴하기 (" + count.ToString() + "/3)";
+        }
 
-            //// 세번째 미션
-            //count = PlayerPrefs.GetInt("Hopping1");
+        // 욕조를 보유하고 있지 않을 때
+        else if (PlayerPrefs.GetInt("Table") == 0)
+        {
+            //첫번째 미션
+            count = PlayerPrefs.GetInt("Tumbling");
 
-            //if (player.Is_hopping == true)
-            //{
-            //    PlayerPrefs.SetInt("Hopping1", count + 1);
-            //    count = PlayerPrefs.GetInt("Hopping1");
-            //}
-            //Text = transform.Find("Mission Panel").transform.GetChild(2).GetComponent<TextMeshProUGUI>();
-            //Text.text = "- 장애물 밟기 (" + count.ToString() + "/1)";
+            if (player.Is_perfect == true)
+            {
+                player.Is_perfect = false;
+                PlayerPrefs.SetInt("Tumbling", count + 1);
+                count = PlayerPrefs.GetInt("Tumbling");
+            }
+            Text = transform.Find("Mission Panel").transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            if (count >= 5) // 성공 시 녹색으로 표시
+            {
+                Text.color = Color.green;
+                count = 5;
+            }
 
-            //if (count >= 1) // 성공 시 녹색으로 표시
-            //{ 
-            //    Text.color = Color.green;
-            //    count = 1;
-            //}
+            Text.text = "- 텀블링 성공하기 (" + count.ToString() + "/5)";
+
+
+            //두번째 미션
+            count = PlayerPrefs.GetInt("Crushing");
+
+            if (player.Is_crushing == true)
+            {
+                player.Is_crushing = false;
+                PlayerPrefs.SetInt("Crushing", count + 1);
+                count = PlayerPrefs.GetInt("Crushing");
+            }
+            Text = transform.Find("Mission Panel").transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            if (count >= 3) // 성공 시 녹색으로 표시
+            {
+                Text.color = Color.green;
+                count = 3;
+            }
+
+            Text.text = "- 장애물 파괴하기 (" + count.ToString() + "/3)";
+
+            // 세번째 미션
+            count = PlayerPrefs.GetInt("Hopping");
+
+            if (player.Is_hopping == true)
+            {
+                PlayerPrefs.SetInt("Hopping", count + 1);
+                count = PlayerPrefs.GetInt("Hopping");
+            }
+            Text = transform.Find("Mission Panel").transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+            if (count >= 1) // 성공 시 녹색으로 표시
+            {
+                Text.color = Color.green;
+                count = 1;
+            }
+            Text.text = "- 장애물 밟기 (" + count.ToString() + "/1)";
+        }
+
+        // 닭을 보유하고 있지 않을 때
+        else if (PlayerPrefs.GetInt("Chicken") == 0)
+        {
+            //첫번째 미션
+            count = PlayerPrefs.GetInt("Tumbling");
+
+            if (player.Is_perfect == true)
+            {
+                player.Is_perfect = false;
+                PlayerPrefs.SetInt("Tumbling", count + 1);
+                count = PlayerPrefs.GetInt("Tumbling");
+            }
+            Text = transform.Find("Mission Panel").transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            if (count >= 5) // 성공 시 녹색으로 표시
+            {
+                Text.color = Color.green;
+                count = 5;
+            }
+
+            Text.text = "- 텀블링 성공하기 (" + count.ToString() + "/5)";
+
+
+            //두번째 미션
+            count = PlayerPrefs.GetInt("Crushing");
+
+            if (player.Is_crushing == true)
+            {
+                player.Is_crushing = false;
+                PlayerPrefs.SetInt("Crushing", count + 1);
+                count = PlayerPrefs.GetInt("Crushing");
+            }
+            Text = transform.Find("Mission Panel").transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            if (count >= 5) // 성공 시 녹색으로 표시
+            {
+                Text.color = Color.green;
+                count = 5;
+            }
+
+            Text.text = "- 장애물 파괴하기 (" + count.ToString() + "/5)";
+
+            // 세번째 미션
+            count = PlayerPrefs.GetInt("Hopping");
+
+            if (player.Is_hopping == true)
+            {
+                PlayerPrefs.SetInt("Hopping", count + 1);
+                count = PlayerPrefs.GetInt("Hopping");
+            }
+            Text = transform.Find("Mission Panel").transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+
+            if (count >= 3) // 성공 시 녹색으로 표시
+            {
+                Text.color = Color.green;
+                count = 3;
+            }
+            Text.text = "- 장애물 밟기 (" + count.ToString() + "/3)";
+        }
+
+        // 슈퍼카를 보유하고 있지 않을 때
+        else if (PlayerPrefs.GetInt("Car") == 0)
+        {
+            //첫번째 미션
+            count = PlayerPrefs.GetInt("Tumbling");
+
+            if (player.Is_perfect == true)
+            {
+                player.Is_perfect = false;
+                PlayerPrefs.SetInt("Tumbling", count + 1);
+                count = PlayerPrefs.GetInt("Tumbling");
+            }
+            Text = transform.Find("Mission Panel").transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            if (count >= 5) // 성공 시 녹색으로 표시
+            {
+                Text.color = Color.green;
+                count = 5;
+            }
+
+            Text.text = "- 텀블링 성공하기 (" + count.ToString() + "/5)";
+
+
+            //두번째 미션
+            count = PlayerPrefs.GetInt("Crushing");
+
+            if (player.Is_crushing == true)
+            {
+                player.Is_crushing = false;
+                PlayerPrefs.SetInt("Crushing", count + 1);
+                count = PlayerPrefs.GetInt("Crushing");
+            }
+            Text = transform.Find("Mission Panel").transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            if (count >= 5) // 성공 시 녹색으로 표시
+            {
+                Text.color = Color.green;
+                count = 5;
+            }
+
+            Text.text = "- 장애물 파괴하기 (" + count.ToString() + "/5)";
+
+            // 세번째 미션
+            count = PlayerPrefs.GetInt("Hopping");
+
+            if (player.Is_hopping == true)
+            {
+                PlayerPrefs.SetInt("Hopping", count + 1);
+                count = PlayerPrefs.GetInt("Hopping");
+            }
+            Text = transform.Find("Mission Panel").transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+
+            if (count >= 5) // 성공 시 녹색으로 표시
+            {
+                Text.color = Color.green;
+                count = 5;
+            }
+            Text.text = "- 장애물 밟기 (" + count.ToString() + "/5)";
+        }
+
+        else
+        {
+            Text = transform.Find("Mission Panel").transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            Text.text = "-\t축하합니다!";
+            Text.color = Color.green;
         }
     }
 }

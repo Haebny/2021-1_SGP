@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1032141068693561819}
   - component: {fileID: 1032141068693561808}
   - component: {fileID: 5238705864502650882}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Dog
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -119,9 +119,13 @@ MonoBehaviour:
   is_collided: 0
   is_key_released: 0
   is_dashing: 0
+  IsMounting: 0
   current_speed: 0
   level_control: {fileID: 0}
+  click_timer: 1
+  audio: {fileID: 0}
   audioClips: []
+  anim: {fileID: 0}
 --- !u!54 &1032141068693561808
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -244,7 +248,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6093699373051678901}
   - component: {fileID: 2222189938418608959}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Effect Sound
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -368,9 +372,45 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1032141068693561815}
     m_Modifications:
+    - target: {fileID: 1058512790102884, guid: 7451ef01e53127446b9d7406220542f6, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1100853154455946, guid: 7451ef01e53127446b9d7406220542f6, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1179095209781084, guid: 7451ef01e53127446b9d7406220542f6, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1345468851379998, guid: 7451ef01e53127446b9d7406220542f6, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1417258215064542, guid: 7451ef01e53127446b9d7406220542f6, type: 3}
       propertyPath: m_Name
       value: Model
+      objectReference: {fileID: 0}
+    - target: {fileID: 1417258215064542, guid: 7451ef01e53127446b9d7406220542f6, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1451966804129338, guid: 7451ef01e53127446b9d7406220542f6, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1713773882672272, guid: 7451ef01e53127446b9d7406220542f6, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1818678713708020, guid: 7451ef01e53127446b9d7406220542f6, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1881880593287916, guid: 7451ef01e53127446b9d7406220542f6, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4343527246573924, guid: 7451ef01e53127446b9d7406220542f6, type: 3}
       propertyPath: m_RootOrder

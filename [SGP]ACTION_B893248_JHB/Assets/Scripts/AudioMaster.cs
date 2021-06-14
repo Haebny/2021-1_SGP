@@ -62,6 +62,8 @@ public class AudioMaster : MonoBehaviour
     {
         foreach (AudioSource audio in SFX)
         {
+            if (audio == null)
+                continue;
             if (audio.gameObject.name == "Main Camera")  // BGM
                 continue;
 

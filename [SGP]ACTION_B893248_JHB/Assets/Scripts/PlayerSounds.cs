@@ -20,27 +20,27 @@ public class PlayerSounds : MonoBehaviour
         switch (animal_type)
         {
             case PlayerControl.ANIMAL_TYPE.DOG:
-                player.audioClips[0] = Resources.Load("Sounds/jump") as AudioClip ;
-                player.audioClips[1] = Resources.Load("Sounds/run") as AudioClip;
-                player.audioClips[2] = Resources.Load("Sounds/cry") as AudioClip;
-                player.audioClips[3] = Resources.Load("Sounds/falldown") as AudioClip;
+                player.audioClips[0] = Resources.Load("Sounds/Dog/jump") as AudioClip ;
+                player.audioClips[1] = Resources.Load("Sounds/Dog/run") as AudioClip;
+                player.audioClips[2] = Resources.Load("Sounds/Dog/cry") as AudioClip;
+                player.audioClips[3] = Resources.Load("Sounds/Dog/falldown") as AudioClip;
                 break;
             case PlayerControl.ANIMAL_TYPE.CAT:
-                player.audioClips[0] = Resources.Load("Sounds/cat_jump") as AudioClip;
-                player.audioClips[1] = Resources.Load("Sounds/cat_run") as AudioClip;
-                player.audioClips[2] = Resources.Load("Sounds/cat_cry") as AudioClip;
-                player.audioClips[3] = Resources.Load("Sounds/cat_falldown") as AudioClip;
+                player.audioClips[0] = Resources.Load("Sounds/Cat/cat_jump") as AudioClip;
+                player.audioClips[1] = Resources.Load("Sounds/Cat/cat_run") as AudioClip;
+                player.audioClips[2] = Resources.Load("Sounds/Cat/cat_cry") as AudioClip;
+                player.audioClips[3] = Resources.Load("Sounds/Cat/cat_falldown") as AudioClip;
                 break;
-            //case PlayerControl.ANIMAL_TYPE.CHICKEN:
-            //    player.audioClips[0] = Resources.Load("Sounds/")  as AudioClip ;
-            //    player.audioClips[0] = Resources.Load("Sounds/")  as AudioClip ;
-            //    player.audioClips[0] = Resources.Load("Sounds/")  as AudioClip ;
-            //    player.audioClips[0] = Resources.Load("Sounds/")  as AudioClip ;
-            //    break;
+            case PlayerControl.ANIMAL_TYPE.CHICKEN:
+                player.audioClips[0] = Resources.Load("Sounds/Chicken/chicken-jump") as AudioClip;
+                player.audioClips[0] = Resources.Load("Sounds/Chicken/chicken-run") as AudioClip;
+                player.audioClips[0] = Resources.Load("Sounds/Chicken/chicken-cry") as AudioClip;
+                player.audioClips[0] = Resources.Load("Sounds/Chicken/chicken-falldown") as AudioClip;
+                break;
             default:
                 break;
         }
-        player.audioClips[4] = Resources.Load("Sounds/key") as AudioClip;
-        player.audioClips[5] = Resources.Load("Sounds/box") as AudioClip;
+        player.audioClips[4] = Resources.Load("Sounds/Items/key") as AudioClip;
+        player.audioClips[5] = Resources.Load("Sounds/Items/box") as AudioClip;
     }
 }

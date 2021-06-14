@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using TMPro;
 
 public class TitleScript : MonoBehaviour
@@ -10,11 +9,16 @@ public class TitleScript : MonoBehaviour
     {
         Screen.SetResolution(Screen.width, Screen.width * 16 / 9,  false);
         SetBestScore();
-    }
-
-    public void GameStart()
-    {
-        SceneManager.LoadScene("MainScene");
+        if (PlayerPrefs.GetInt("Bed") == 1)
+        {
+            GameObject mount = Camera.main.transform.Find("Mount").gameObject;
+            mount.SetActive(true);
+            Rigidbody[] rbs = mount.transform.GetComponentsInChildren<Rigidbody>();
+            foreach (var rb in rbs)
+            {
+                rb.useGravity = false;
+            }
+        }
     }
 
     public int GetBestScore()
@@ -31,16 +35,10 @@ public class TitleScript : MonoBehaviour
         bestRecord.text = "Best Record : " + GetBestScore().ToString();
     }
 
-    public void QuitGame()
-    {
-        Application.Quit();
-    }
-
     // 데이터 삭제
     public void DeleteData()
     {
         PlayerPrefs.DeleteAll();
+        SetBestScore();
     }
-
-
 }

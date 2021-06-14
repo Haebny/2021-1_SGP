@@ -13,12 +13,15 @@ public class CharacterChoose : MonoBehaviour
         ChooseCharacter();
     }
 
+    private void Update()
+    {
+        ChooseCharacter();
+    }
+
     public void ChooseCharacter()
     {
-        GameObject player = GameObject.Find("Player");
+        GameObject player = GameObject.Find("Main Camera").transform.Find("Player").gameObject;
         string name = " ";
-        if (CharacterChoose.index < 0)
-            CharacterChoose.index = Mathf.Abs(player.transform.childCount + CharacterChoose.index);
 
         for (int i = 0; i < player.transform.childCount; i++)
         {
@@ -43,8 +46,8 @@ public class CharacterChoose : MonoBehaviour
             return;
 
         CharacterChoose.index++;
-        if(CharacterChoose.index >1)
-            CharacterChoose.index = CharacterChoose.index % 2;
+        if(CharacterChoose.index > PlayerPrefs.GetInt("aCount"))
+            CharacterChoose.index = PlayerPrefs.GetInt("aCount");
         ChooseCharacter();
     }
 
@@ -54,6 +57,8 @@ public class CharacterChoose : MonoBehaviour
             return;
 
         CharacterChoose.index--;
+        if (CharacterChoose.index < 0)
+            CharacterChoose.index = 0;
         ChooseCharacter();
     }
 }
