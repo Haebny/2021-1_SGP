@@ -1,6 +1,5 @@
-# 2021-1_SGP
+# 2021-1_기능성게임프로그래밍 Proj. Forest Dash
 Hongik Univ. Serious Game Programming class
-: 홍익대학교 게임소프트웨어전공 기능성게임프로그래밍 수업
 
 <Prjoect: 게임 구현 및 레벨디자인>
 : 기획한 게임을 사양에 맞게 제작, 사용자 평가에 따라 레벨 디자인 개선
