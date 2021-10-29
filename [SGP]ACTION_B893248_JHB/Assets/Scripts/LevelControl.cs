@@ -6,7 +6,7 @@ using UnityEngine;
 public class LevelData
 {
     public struct Range
-    { 
+    {
         // 범위를 표현하는 구조체.
         public int min; // 범위의 최솟값.
         public int max; // 범위의 최댓값.
@@ -17,8 +17,6 @@ public class LevelData
 
     public Range floor_count; // 발판 블록 수의 범위.
     public Range height_diff; // 발판의 높이 범위.
-    //public int apear_Fobs; // 장애물 확률
-    //public int continuity;  // 블록의 연속개수
 
     public LevelData()
     {
@@ -26,7 +24,6 @@ public class LevelData
         this.player_speed = 6.0f; // 플레이어의 속도 초기화.
         this.floor_count.min = 10; // 발판 블록 수의 최솟값을 초기화.
         this.floor_count.max = 10; // 발판 블록 수의 최댓값을 초기화.
-        //this.apear_Fobs = 3; // 장애물 등장 확률은 33%
         this.height_diff.min = 0; // 발판 높이 변화의 최솟값을 초기화.
         this.height_diff.max = 0; // 발판 높이 변화의 최댓값을 초기화.
     }
@@ -49,11 +46,12 @@ public class LevelControl : MonoBehaviour
     public int block_count; // 생성한 블록의 총 수.
     public static int level;
     public bool isChanged;
+    public Queue<Block.TYPE> typeQueue;
 
     private static LevelControl instance;
     public static LevelControl GetInstance()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = new LevelControl();
         }
@@ -66,6 +64,8 @@ public class LevelControl : MonoBehaviour
         LevelControl.level = 1;
         Debug.Log("LEVEL: " + level);
         isChanged = false;
+
+        typeQueue = new Queue<Block.TYPE>();
     }
 
     public void LevelUp()
@@ -116,7 +116,6 @@ public class LevelControl : MonoBehaviour
         }
     }
 
-    //public void update(float passage_time)
     public void update()
     {
         // *Update()가 아님. CreateFloorBlock() 메서드에서 호출
@@ -274,7 +273,12 @@ public class LevelControl : MonoBehaviour
 
         switch (previous.block_type)
         {
-            case Block.TYPE.FLOOR: // 이번 블록이 일반 평지일 경우.
+            // 이번 블록이 일반 평지일 경우.
+            case Block.TYPE.FLOOR:
+            case Block.TYPE.FLOOR1:
+            case Block.TYPE.FLOOR2:
+            case Block.TYPE.FLOOR3:
+            case Block.TYPE.FLOOR4:
 
                 // 일정 확률로 장애물 오브젝트 등장
                 if (rand % 2 == 0)
@@ -287,7 +291,7 @@ public class LevelControl : MonoBehaviour
                 // 일정 확률로 열쇠 등장
                 else if (rand % 3 == 0)
                 {
-                    current.block_type = Block.TYPE.KEY; // 다음 번은 급경사면을 만든다.
+                    current.block_type = Block.TYPE.KEY; // 다음 번은 열쇠를 만든다.
                     current.max_count = 1; // 열쇠는 1개 만든다.
                     current.height = previous.height; // 높이를 이전과 같게 한다.
                 }
@@ -311,7 +315,6 @@ public class LevelControl : MonoBehaviour
                 // 이외에는 일반 평지 등장
                 else
                 {
-                    current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
                     current.max_count = 15; // 평지의 최대개수
                     current.height = previous.height; // 높이를 이전과 같게 한다.
                 }
@@ -328,7 +331,7 @@ public class LevelControl : MonoBehaviour
                 }
                 else
                 {
-                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 일반 평지를 만든다.
+                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 경사면을 만든다.
                     current.max_count = 7; // 급경사면은 최대 7개 만든다.
                 }
                 break;
@@ -341,7 +344,12 @@ public class LevelControl : MonoBehaviour
 
         switch (previous.block_type)
         {
-            case Block.TYPE.FLOOR: // 이번 블록이 일반 평지일 경우.
+            // 이번 블록이 일반 평지일 경우.
+            case Block.TYPE.FLOOR: 
+            case Block.TYPE.FLOOR1:
+            case Block.TYPE.FLOOR2:
+            case Block.TYPE.FLOOR3:
+            case Block.TYPE.FLOOR4:
 
                 // 일정 확률로 장애물 오브젝트 등장
                 if (rand % 2 == 0)
@@ -381,7 +389,6 @@ public class LevelControl : MonoBehaviour
                 // 이외에는 일반 평지 등장
                 else
                 {
-                    current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
                     current.max_count = 10; // 평지의 최대개수
                     current.height = previous.height; // 높이를 이전과 같게 한다.
                 }
@@ -399,7 +406,7 @@ public class LevelControl : MonoBehaviour
                 }
                 else
                 {
-                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 일반 평지를 만든다.
+                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 경사면을 만든다.
                     current.max_count = 10; // 경사면의 최대개수
                 }
                 break;
@@ -413,18 +420,21 @@ public class LevelControl : MonoBehaviour
         switch (previous.block_type)
         {
             case Block.TYPE.FLOOR: // 이번 블록이 일반 평지일 경우.
+            case Block.TYPE.FLOOR1: // 이번 블록이 일반 평지일 경우.
+            case Block.TYPE.FLOOR2: // 이번 블록이 일반 평지일 경우.
+            case Block.TYPE.FLOOR3: // 이번 블록이 일반 평지일 경우.
+            case Block.TYPE.FLOOR4: // 이번 블록이 일반 평지일 경우.
 
                 // 일정 확률로 장애물 오브젝트 등장
                 if (rand % 2 == 0)
                 {
                     if (rand % 3 == 0)
                         current.block_type = Block.TYPE.OBSTACLE_R;     // 바위 생성.
-                    else if(rand % 3== 1)
+                    else if (rand % 3 == 1)
                         current.block_type = Block.TYPE.OBSTACLE_T;     // 묘비 생성.
                     else
                         current.block_type = Block.TYPE.OBSTACLE_F;     // 펜스 생성.
                     current.max_count = 1; // 평지 장애물은 1개 만든다.
-                    current.height = previous.height; // 높이를 이전과 같게 한다.
                 }
 
                 // 일정 확률로 열쇠 등장
@@ -447,14 +457,13 @@ public class LevelControl : MonoBehaviour
                 else if (rand % 4 == 0)
                 {
                     current.block_type = Block.TYPE.SLOPE; // 다음 번은 경사면을 만든다.
-                    current.max_count = 15; // 경사면은 20개 만든다.
+                    current.max_count = 15; // 경사면을 만든다.
                     current.height = previous.height - 3f; // 높이를 이전보다 낮게 한다
                 }
 
                 // 이외에는 일반 평지 등장
                 else
                 {
-                    current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
                     current.max_count = 5; // 일반 평지를 만든다.
                     current.height = previous.height; // 높이를 이전과 같게 한다.
                 }
@@ -469,14 +478,59 @@ public class LevelControl : MonoBehaviour
                 if (rand % 2 == 0)
                 {
                     current.block_type = Block.TYPE.FLOOR; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = Random.Range(3,8) ; // 평지의 최대개수
+                    current.max_count = Random.Range(3, 8); // 평지의 최대개수
                 }
                 else
                 {
-                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 일반 평지를 만든다.
-                    current.max_count = 15; // 경사면의 최대개수
+                    current.block_type = Block.TYPE.SLOPE; // 다음 번은 경사면을 만든다.
+                    current.max_count = Random.Range(10, 20); // 경사면의 최대개수
                 }
                 break;
         }
+    }
+
+    public void SetFloorType(ref CreationInfo current)
+    {
+        if (typeQueue.Count > 3)
+            typeQueue.Dequeue();
+
+        int type = Random.Range(0, 5);
+        while (true)
+        {
+            if ((type == 1 || type == 2) && typeQueue.Contains((Block.TYPE)type))
+            {
+                type = Random.Range(0, 5);
+            }
+            else
+            {
+                typeQueue.Enqueue((Block.TYPE)type);
+                break;
+            }
+        }
+
+        // 다음 번은 일반 평지를 만든다.
+        switch (type)
+        {
+            case 0:
+                current.block_type = Block.TYPE.FLOOR;
+                break;
+            case 1:
+                current.block_type = Block.TYPE.FLOOR1;
+                break;
+            case 2:
+                current.block_type = Block.TYPE.FLOOR2;
+                break;
+            case 3:
+                current.block_type = Block.TYPE.FLOOR3;
+                break;
+            case 4:
+                current.block_type = Block.TYPE.FLOOR4;
+                break;
+            default:
+                current.block_type = Block.TYPE.FLOOR;
+                break;
+        }
+
+        typeQueue.Enqueue(current.block_type);
     }
 }

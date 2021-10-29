@@ -15,7 +15,6 @@ public class MountChoose : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(PlayerPrefs.GetInt("mCount"));
         ChooseMount();
     }
 

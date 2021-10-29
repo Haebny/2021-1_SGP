@@ -10,6 +10,10 @@ public class Block
     {
         NONE = -1, // 없음.
         FLOOR = 0, // 평면
+        FLOOR1 = 1, // 평면
+        FLOOR2 = 2, // 평면
+        FLOOR3 = 3, // 평면
+        FLOOR4 = 4, // 평면
         OBSTACLE_R,  // 평지 장애물 바위
         KEY, // 열쇠
         BOX, // 박스
@@ -24,7 +28,7 @@ public class MapCreator : MonoBehaviour
 {
     public static float BLOCK_WIDTH = 1.0f; // 블록의 폭.
     public static float BLOCK_HEIGHT = -6f; // 블록의 높이.
-    public static int BLOCK_NUM_IN_SCREEN = 70; // 화면 내에 들어가는 블록의 개수.
+    public static int BLOCK_NUM_IN_SCREEN = 50; // 화면 내에 들어가는 블록의 개수.
     private LevelControl level_control = null;
     //public TextAsset level_data_text = null;
     private GameRoot game_root = null;
@@ -38,13 +42,11 @@ public class MapCreator : MonoBehaviour
 
     private FloorBlock last_block; // 마지막에 생성한 블록.
     private PlayerControl player = null; // 씬상의 Player를 보관.
-    private BlockCreator block_creator; // BlockCreator를 보관.
 
     void Start()
     {
         this.player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>(); 
         this.last_block.is_created = false;
-        this.block_creator = this.gameObject.GetComponent<BlockCreator>();
 
         this.level_control = this.gameObject.AddComponent<LevelControl>();
         this.level_control.Initialize();
@@ -73,10 +75,10 @@ public class MapCreator : MonoBehaviour
             // last_block이 생성된 경우 이번에 만들 블록의 위치를 직전에 만든 블록과 같게.
             block_position = this.last_block.position;
         }
+
         block_position.x += BLOCK_WIDTH; // 블록을 1블럭만큼 오른쪽으로 이동.
 
         this.level_control.update(); // LevelControl을 갱신.
-        //this.level_control.update(this.game_root.GetPlayTime());  // 플레이 타임에 따라 다르게 생성
 
         // level_control에 저장된 current_block(지금 만들 블록 정보)의 height(높이)를 씬 상의 좌표로 변환.
         block_position.y = level_control.current_block.height * BLOCK_HEIGHT;
@@ -85,17 +87,15 @@ public class MapCreator : MonoBehaviour
         LevelControl.CreationInfo current = this.level_control.current_block;
 
         // 지금 만들 블록이 바닥이면 (지금 만들 블록이 장애물이라면)
-        if (current.block_type == Block.TYPE.FLOOR || current.block_type == Block.TYPE.OBSTACLE_F
-            || current.block_type == Block.TYPE.OBSTACLE_R || current.block_type == Block.TYPE.OBSTACLE_T
-            || current.block_type == Block.TYPE.KEY || current.block_type == Block.TYPE.BOX)
+        if (current.block_type == Block.TYPE.FLOOR || current.block_type == Block.TYPE.FLOOR1
+            || current.block_type == Block.TYPE.FLOOR2 || current.block_type == Block.TYPE.FLOOR3
+            || current.block_type == Block.TYPE.FLOOR4)
         {
-            // block_position의 위치에 블록을 실제로 생성.
-            this.block_creator.CreateBlock(block_position, current.block_type);
+            level_control.SetFloorType(ref current);
         }
-        else
-        {
-            this.block_creator.CreateBlock(block_position, current.block_type);
-        }
+
+        // block_position의 위치에 블록을 실제로 생성.
+        BlockCreator.GetObject(block_position, current.block_type);
 
         this.last_block.position = block_position; // last_block의 위치를 이번 위치로 갱신.
         this.last_block.is_created = true; // 블록이 생성되었으므로 last_block의 is_created를 true로 설정.
@@ -118,7 +118,7 @@ public class MapCreator : MonoBehaviour
         }
     }
 
-    public bool IsDelete(GameObject block_object)
+    public bool IsOnCam(GameObject block_object)
     {
         bool ret = false; // 반환값.
                           

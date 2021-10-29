@@ -584,7 +584,7 @@ public class PlayerControl : MonoBehaviour
             {
                 is_crushing = true;
                 is_hopping = false;
-                Destroy(other.gameObject);
+                other.gameObject.SetActive(false);
                 this.GetComponent<Rigidbody>().velocity = velocity;
                 Debug.Log("CRUSH !!! (+200)");
                 score += (int)GameRoot.SCORE_TYPE.DESTROY;  // 점수 획득
@@ -599,7 +599,7 @@ public class PlayerControl : MonoBehaviour
         if (other.CompareTag("Key"))
         {
             Debug.Log("GET KEY!!! (+50)");
-            Destroy(other.gameObject);
+            other.gameObject.SetActive(false);
             score += 50;
 
             // 획득 시 key 효과음
@@ -642,7 +642,7 @@ public class PlayerControl : MonoBehaviour
 
             Debug.Log("BOX OPEN !!! (+100)");
             //StopCoroutine("ScoreRecord");
-            Destroy(other.gameObject);  //상자가 열리는 애니메이션으로 대체 시 트리거로 옮길 것
+            other.gameObject.SetActive(false);  //상자가 열리는 애니메이션으로 대체 시 트리거로 옮길 것
             score += 100;
             skill++;
             GameObject.Find("UI").transform.Find("Dash_PS").gameObject.SetActive(true);
@@ -659,7 +659,7 @@ public class PlayerControl : MonoBehaviour
             {
                 is_crushing = true;
                 is_hopping = false;
-                Destroy(collision.gameObject);
+                collision.gameObject.SetActive(false);
                 this.GetComponent<Rigidbody>().velocity = velocity;
                 Debug.Log("CRUSH !!! (+200)");
                 score += (int)GameRoot.SCORE_TYPE.DESTROY;  // 점수 획득
@@ -672,7 +672,7 @@ public class PlayerControl : MonoBehaviour
             // 넘어짐!!
             is_collided = true;  // 충돌
             setState = false;
-            Destroy(collision.gameObject);
+            collision.gameObject.SetActive(false);
 
             // falldown 효과음
             audio.clip = audioClips[3];
@@ -723,7 +723,7 @@ public class PlayerControl : MonoBehaviour
             {
                 is_crushing = true;
                 is_hopping = false;
-                Destroy(collision.gameObject);
+                collision.gameObject.SetActive(false);
                 this.GetComponent<Rigidbody>().velocity = velocity;
                 Debug.Log("CRUSH !!! (+200)");
                 score += (int)GameRoot.SCORE_TYPE.DESTROY;  // 점수 획득
@@ -736,7 +736,7 @@ public class PlayerControl : MonoBehaviour
             // 넘어짐!!
             is_collided = true;  // 충돌
             setState = false;
-            Destroy(collision.gameObject);
+            collision.gameObject.SetActive(false);
 
             // falldown 효과음
             audio.clip = audioClips[3];

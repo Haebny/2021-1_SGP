@@ -4690,7 +4690,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 0
+        m_CallState: 2
       - m_Target: {fileID: 1112813186}
         m_MethodName: CharacterNextButton
         m_Mode: 1
@@ -7797,7 +7797,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 0
+        m_CallState: 2
       - m_Target: {fileID: 1722035656}
         m_MethodName: CharacterPrevButton
         m_Mode: 1
