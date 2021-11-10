@@ -1,6 +1,13 @@
 # 2021-1_기능성게임프로그래밍 Proj. Forest Dash
 Hongik Univ. Serious Game Programming class
 
+## **<DOCS>**
+- 기술보고서 : [디자인패턴_기술보고서_B893248정해빈.pdf](https://github.com/Haebny/2021-1_SGP_Proj.ForestDash/files/7509580/_._B893248.pdf)
+- 제작보고서 : [[B893248정해빈]Forest Dash 제작 보고서.pdf](https://github.com/Haebny/2021-1_SGP_Proj.ForestDash/files/7509595/B893248.Forest.Dash.pdf)
+- Forest Dash 사양서 : [[B893248 정해빈]Forest Dash 사양.pdf](https://github.com/Haebny/2021-1_SGP_Proj.ForestDash/files/7509591/B893248.Forest.Dash.pdf)
+- Forest Dash 기획서 : [[B893248 정해빈]Forest Dash 기획.pdf](https://github.com/Haebny/2021-1_SGP_Proj.ForestDash/files/7509592/B893248.Forest.Dash.pdf)
+- 상용 러닝게임 분석 : [HW1기존 게임 분석 - 정해빈 B893248.pdf](https://github.com/Haebny/2021-1_SGP_Proj.ForestDash/files/7509588/HW1.-.B893248.pdf)
+
 <Prjoect: 게임 구현 및 레벨디자인>
 : 기획한 게임을 사양에 맞게 제작, 사용자 평가에 따라 레벨 디자인 개선
 
@@ -26,7 +33,7 @@ Hongik Univ. Serious Game Programming class
 - 게임 플레이 타임: ~5분이내
 - 빌드한 게임은 실행에 필요한 모든 파일 및 데이터를 ZIP 파일로 압축 후 ClassNet(제한: 100MB)에 제출
 
-**<게임 플레이 및 레벨 디자인 개선 (05/24, 05/31, 06/07)>** <<< NOW!
+<게임 플레이 및 레벨 디자인 개선 (05/24, 05/31, 06/07)>
 - 배포한 프로토타입 게임 플레이 후 동료 평가 및 레벨 디자인 수정
 - 필수 수행 내용: 동료 게임 플레이, 평가 리포트 작성, 레벨 디자인 수정
   - 동료 게임 플레이: 10명 x 2회, 대상은 랜덤 배정
